@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Checkout - Nanba Pharmacy</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<div class="container mt-5 mb-5">
+    <h2 class="text-center mb-4 fw-bold">Checkout Process</h2>
+    
+    <div class="row">
+        <!-- Left Side: Shipping & Payment -->
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0 p-4">
+                <h4 class="mb-3">Shipping Address</h4>
+                <form action="/checkout" method="POST">
+                    <div class="mb-3">
+                        <label class="form-label">Full Name</label>
+                        <input type="text" name="name" class="form-control" placeholder="Enter full name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Phone Number</label>
+                        <input type="text" name="phone" class="form-control" placeholder="Mobile number" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Complete Address</label>
+                        <textarea name="address" class="form-control" rows="3" placeholder="Door no, Street name, City, Pincode" required></textarea>
+                    </div>
+
+                    <h4 class="mt-4 mb-3">Payment Method</h4>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="payment" value="COD" checked>
+                        <label class="form-check-label">Cash on Delivery (COD)</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="payment" value="Online">
+                        <label class="form-check-label">Online Payment (Dummy)</label>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-lg w-100 mt-4">Confirm Order</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Right Side: Order Summary -->
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 p-4">
+                <h4 class="mb-3">Order Summary</h4>
+                <ul class="list-group list-group-flush">
+                    {% for product in products %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0">
+                        {{ product.name }}
+                        <span>₹{{ product.price }}</span>
+                    </li>
+                    {% endfor %}
+                    <hr>
+                    <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 fw-bold">
+                        Total Amount
+                        <span class="text-primary fs-5">₹{{ total }}</span>
+                    </li>
+                </ul>
+            </div>
+            <a href="/cart" class="btn btn-link text-decoration-none mt-2">← Back to Cart</a>
+        </div>
+    </div>
+</div>
+
+<!-- Form-ah ippadi update pannunga nanba -->
+<form action="/checkout" method="POST" enctype="multipart/form-data">
+    <div class="mb-3">
+        <label class="form-label">Full Name</label>
+        <input type="text" name="name" class="form-control" required>
+    </div>
+    
+    <!-- Puthu Prescription Upload Field -->
+    <div class="mb-3">
+        <label class="form-label fw-bold text-danger">Upload Prescription (Image/PDF) *</label>
+        <input type="file" name="prescription" class="form-control" accept="image/*,.pdf" required>
+        <small class="text-muted">Doctor-oda prescription photo-ah inga upload pannunga.</small>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Phone Number</label>
+        <input type="text" name="phone" class="form-control" required>
+    </div>
+    
+    <!-- Payment & Address (Old code) -->
+    ...
+    <button type="submit" class="btn btn-primary btn-lg w-100 mt-4">Place Order Now</button>
+</form>
+
+</body>
+</html>

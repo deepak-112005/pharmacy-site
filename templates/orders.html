@@ -1,0 +1,48 @@
+<div class="container mt-5">
+    <h3>My Order History</h3>
+
+    <table class="table table-hover mt-3 shadow-sm">
+        <thead class="table-dark">
+            <tr>
+                <th>Order ID</th>
+                <th>Total</th>
+                <th>Prescription</th>
+                <th>Status</th>
+                <th>Invoice</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for order in orders %}
+            <tr>
+                <td>#{{ order.id }}</td>
+
+                <td>₹{{ order.total_amount }}</td>
+
+                <td>
+                    {% if order.prescription_file %}
+                        <a href="{{ url_for('static', filename='uploads/' + order.prescription_file) }}" 
+                           target="_blank" 
+                           class="badge bg-success text-decoration-none">
+                            View File
+                        </a>
+                    {% else %}
+                        <span class="badge bg-secondary">No File</span>
+                    {% endif %}
+                </td>
+
+                <td>
+                    <span class="badge bg-info">Processing</span>
+                </td>
+
+                <td>
+                    <a href="{{ url_for('download_invoice', order_id=order.id) }}"
+                       class="btn btn-sm btn-outline-primary">
+                        Download PDF
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
