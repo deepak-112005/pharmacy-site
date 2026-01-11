@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Med Pharma - Home</title>
+    <title>Nanba Pharmacy - Home</title>
 
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -50,18 +50,15 @@
                     Hi, {{ current_user.username }}
                 </span>
 
-                <!-- ADMIN PANEL (ADMIN USER ONLY) -->
                 {% if current_user.username == 'admin' %}
                     <a class="btn btn-dark btn-sm me-2" href="/admin">
                         Admin Panel
                     </a>
                 {% endif %}
-            
-            {% if current_user.is_authenticated %}
-                    <a class="btn btn-outline-light btn-sm me-2" href="/my_orders">My Orders</a>
-                <!-- admin and other links... -->
-                {% endif %}    
 
+                <a class="btn btn-outline-light btn-sm me-2" href="/my_orders">
+                    My Orders
+                </a>
 
                 <a class="btn btn-outline-light btn-sm me-2" href="/logout">
                     Logout
@@ -154,8 +151,9 @@
                             <h5 class="text-primary fw-bold">
                                 ₹{{ product.price }}
                             </h5>
+
                             <a href="{{ url_for('add_to_cart', product_id=product.id) }}"
-                               class="btn btn-success btn-sm w-100">
+                               class="btn btn-success w-100 mt-2">
                                 Add to Cart
                             </a>
                         </div>
@@ -165,9 +163,7 @@
             {% endfor %}
         {% else %}
             <div class="col-12 text-center py-5">
-                <h4 class="text-muted">
-                    No medicines found
-                </h4>
+                <h4 class="text-muted">No medicines found</h4>
                 <a href="/" class="btn btn-primary mt-3">
                     Browse All
                 </a>
@@ -185,6 +181,25 @@
 
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<div class="card p-3 mb-4 bg-primary text-white border-0 shadow">
+    <h5>💊 AI Health Assistant</h5>
+    <p class="small">Enna prachana nu sollu nanba, naan medicine suggest pandren!</p>
+    <form action="/ai_assistant" method="POST" class="d-flex">
+        <input type="text" name="symptom" class="form-control me-2" placeholder="Ex: I have mild fever...">
+        <button class="btn btn-warning shadow-sm">Suggest</button>
+    </form>
+</div>
+
+{% if suggestions %}
+<div class="alert alert-success">
+    <strong>AI Suggestion:</strong> Based on your symptom, you might need:
+    <ul>
+        {% for s in suggestions %}
+            <li>{{ s.name }} - ₹{{ s.price }} <a href="/add_to_cart/{{s.id}}">Add Now</a></li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
 </body>
 </html>
-

@@ -72,6 +72,35 @@
         </div>
     </div>
 </div>
+<div class="card p-4 mt-4 shadow-sm border-0">
+    <h4 class="text-danger">Prescription Verification Alerts</h4>
+    <table class="table align-middle">
+        <thead>
+            <tr>
+                <th>Order ID</th>
+                <th>Doctor License</th>
+                <th>AI Status</th>
+                <th>Red Flag Reason</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+            <tr class="{% if order.verification_status == 'Blocked' %}table-danger{% elif order.verification_status == 'Flagged' %}table-warning{% endif %}">
+                <td>#{{ order.id }}</td>
+                <td>{{ order.doctor_license_detected }}</td>
+                <td><strong>{{ order.verification_status }}</strong></td>
+                <td>{{ order.flag_reason }}</td>
+                <td>
+                    <button class="btn btn-sm btn-dark">Manual Review</button>
+                    <a href="{{ url_for('static', filename='uploads/' + order.prescription_file) }}" target="_blank" class="btn btn-sm btn-info">View Doc</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
 
 </body>
 </html>
