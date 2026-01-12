@@ -101,6 +101,20 @@
     </table>
 </div>
 
-
+<form action="/admin/add_product" method="POST">
+    <input type="text" name="sku" placeholder="SKU Code (Ex: MED-001)" class="form-control mb-2">
+    <input type="text" name="name" placeholder="Product Name" class="form-control mb-2">
+    
+    <select name="category_id" class="form-select mb-2">
+        <!-- Categories backend-la irunthu loop panni varum -->
+        {% for cat in categories %}
+            <option value="{{ cat.id }}">{{ cat.name }}</option>
+        {% endfor %}
+    </select>
+    
+    <input type="number" name="stock" placeholder="Stock Quantity" class="form-control mb-2">
+    <textarea name="tags" placeholder="Search Keywords (fever, pain, etc.)" class="form-control mb-2"></textarea>
+    <button class="btn btn-primary">Add to Inventory</button>
+</form>
 </body>
 </html>

@@ -201,6 +201,31 @@
     </ul>
 </div>
 {% endif %}
+<div class="position-relative">
+    <input type="text" id="searchInput" class="form-control" placeholder="Search medicines or instruments...">
+    <!-- Inga thaan suggestions list aagum -->
+    <div id="suggestionBox" class="list-group position-absolute w-100 shadow-lg" style="z-index: 1000;"></div>
+</div>
 
+<script>
+document.getElementById('searchInput').addEventListener('input', function() {
+    let q = this.value;
+    let box = document.getElementById('suggestionBox');
+    
+    if(q.length < 2) { box.innerHTML = ''; return; }
+
+    fetch(`/api/suggestions?q=${q}`)
+        .then(res => res.json())
+        .then(data => {
+            box.innerHTML = '';
+            data.forEach(item => {
+                box.innerHTML += `
+                    <a href="/?q=${item.name}" class="list-group-item list-group-item-action">
+                        ${item.name} <small class="text-muted float-end">${item.cat}</small>
+                    </a>`;
+            });
+        });
+});
+</script>
 </body>
 </html>
