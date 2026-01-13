@@ -275,7 +275,7 @@ def admin_dashboard():
 def download_invoice(order_id):
     order = Order.query.get_or_404(order_id)
     pdf = FPDF(); pdf.add_page(); pdf.set_font("Arial", 'B', 16)
-    pdf.cell(190, 10, "INVOICE - NANBA PHARMACY", ln=True, align='C')
+    pdf.cell(190, 10, "INVOICE - Medi kart", ln=True, align='C')
     pdf.set_font("Arial", '', 12); pdf.cell(190, 10, f"Customer: {order.full_name} | Total: Rs.{order.total_amount}", ln=True)
     res = make_response(pdf.output(dest='S').encode('latin-1'))
     res.headers['Content-Disposition'] = f'attachment; filename=invoice_{order.id}.pdf'
