@@ -146,44 +146,117 @@ def verify_prescription_ai(file_path):
         return "Error", str(e), "Error"
 
 # ---------------- SEED DATA ----------------
-def seed_data():
-    cats = ["MEDICINES", "COSMETICS & PERSONAL CARE", "MEDICAL INSTRUMENTS", "SURGICAL", "HYGIENE", "WELLNESS", "OTHERS"]
-    cat_map = {}
-    for c in cats:
-        obj = Category.query.filter_by(name=c).first()
-        if not obj:
-            obj = Category(name=c)
-            db.session.add(obj)
-            db.session.commit()
-        cat_map[c] = obj.id
+# --- 1. REAL_PRODUCTS LIST (Function-ku veliya irukanum) ---
+REAL_PRODUCTS = [
+    # MEDICINES
+    {"sku": "MED-001", "name": "Dolo 650 Tablet", "price": 30.0, "cat": "MEDICINES", "tags": "fever, paracetamol", "desc": "Relieves fever and body pain."},
+    {"sku": "MED-002", "name": "Limcee Vitamin C", "price": 25.0, "cat": "MEDICINES", "tags": "vitamin, immunity", "desc": "Vitamin C chewable tablets."},
+    {"sku": "MED-003", "name": "Saridon", "price": 40.0, "cat": "MEDICINES", "tags": "headache", "desc": "Fast relief from headache."},
+    {"sku": "MED-004", "name": "Digene Gel (Mint)", "price": 150.0, "cat": "MEDICINES", "tags": "acidity, gas", "desc": "Antacid for gas and acidity."},
+    {"sku": "MED-005", "name": "Vicks Vaporub", "price": 95.0, "cat": "MEDICINES", "tags": "cold, cough", "desc": "Relief from nose congestion."},
+    {"sku": "MED-006", "name": "Avil 25mg", "price": 15.0, "cat": "MEDICINES", "tags": "allergy", "desc": "Anti-allergic medicine."},
 
-    real_items = [
-        {"sku": "MED-01", "name": "Dolo 650", "price": 30.0, "cat": "MEDICINES", "tags": "fever, pain"},
-        {"sku": "INST-01", "name": "Nebulizer", "price": 1850.0, "cat": "MEDICAL INSTRUMENTS", "tags": "asthma, breathing"},
-        {"sku": "OTHR-01", "name": "Hot Water Bag", "price": 320.0, "cat": "OTHERS", "tags": "pain relief"}
+    # COSMETICS
+    {"sku": "COS-001", "name": "Vaseline Body Lotion", "price": 280.0, "cat": "COSMETICS & PERSONAL CARE", "tags": "skin, moisturizer", "desc": "Deep moisture for dry skin."},
+    {"sku": "COS-002", "name": "Himalaya Face Wash", "price": 110.0, "cat": "COSMETICS & PERSONAL CARE", "tags": "face, acne", "desc": "Purifying Neem face wash."},
+    {"sku": "COS-003", "name": "Ponds Dreamflower", "price": 180.0, "cat": "COSMETICS & PERSONAL CARE", "tags": "powder, skin", "desc": "Fragrant talcum powder."},
+    {"sku": "COS-004", "name": "Biotique Sunscreen", "price": 450.0, "cat": "COSMETICS & PERSONAL CARE", "tags": "sun, uv protection", "desc": "Bio Sandalwood SPF 50+."},
+
+    # INSTRUMENTS
+    {"sku": "INST-001", "name": "Pulse Oximeter", "price": 1200.0, "cat": "MEDICAL INSTRUMENTS", "tags": "oxygen, heart rate", "desc": "Digital fingertip pulse oximeter."},
+    {"sku": "INST-002", "name": "Digital Thermometer", "price": 240.0, "cat": "MEDICAL INSTRUMENTS", "tags": "fever, temperature", "desc": "High precision digital sensor."},
+    {"sku": "INST-003", "name": "Glucometer Kit", "price": 950.0, "cat": "MEDICAL INSTRUMENTS", "tags": "sugar, diabetes", "desc": "Blood glucose monitoring system."},
+    {"sku": "INST-004", "name": "Steamer Inhaler", "price": 350.0, "cat": "MEDICAL INSTRUMENTS", "tags": "cold, steam", "desc": "Facial steamer and inhaler."},
+
+    # SURGICAL
+    {"sku": "SURG-001", "name": "Dettol Antiseptic", "price": 190.0, "cat": "SURGICAL & FIRST AID ITEMS", "tags": "wounds, germs", "desc": "Disinfectant liquid."},
+    {"sku": "SURG-002", "name": "Crepe Bandage", "price": 220.0, "cat": "SURGICAL & FIRST AID ITEMS", "tags": "sprain, pain", "desc": "Elastic bandage for muscle pain."},
+    {"sku": "SURG-003", "name": "Savlon Liquid", "price": 85.0, "cat": "SURGICAL & FIRST AID ITEMS", "tags": "antiseptic", "desc": "Wound cleaning liquid."},
+    {"sku": "SURG-004", "name": "Cotton Roll 500g", "price": 250.0, "cat": "SURGICAL & FIRST AID ITEMS", "tags": "surgical cotton", "desc": "Pure absorbent sterile cotton."},
+
+    # HYGIENE
+    {"sku": "HYG-001", "name": "Hand Sanitizer 500ml", "price": 240.0, "cat": "HOSPITAL HYGIENE PRODUCTS", "tags": "alcohol, gems", "desc": "70% alcohol based sanitizer."},
+    {"sku": "HYG-002", "name": "Disposable Masks (50)", "price": 150.0, "cat": "HOSPITAL HYGIENE PRODUCTS", "tags": "mask, surgical", "desc": "3-Ply surgical face masks."},
+
+    # WELLNESS
+    {"sku": "WELL-001", "name": "Horlicks Women's Plus", "price": 340.0, "cat": "WELLNESS & HEALTH SUPPLEMENTS", "tags": "bone health, woman", "desc": "Health drink for bone strength."},
+    {"sku": "WELL-002", "name": "Chyawanprash (1kg)", "price": 450.0, "cat": "WELLNESS & HEALTH SUPPLEMENTS", "tags": "immunity, herbal", "desc": "Dabur Ayurvedic immunity booster."},
+
+    # OTHERS
+    {"sku": "OTHR-001", "name": "Electric Hot Bag", "price": 350.0, "cat": "OTHERS", "tags": "heat therapy, pain", "desc": "Rechargeable heat water bag."},
+    {"sku": "OTHR-002", "name": "Back Support Belt", "price": 850.0, "cat": "OTHERS", "tags": "back pain, support", "desc": "Lumbar support for back pain."}
+]
+
+# --- 2. SEED DATABASE FUNCTION ---
+def seed_database():
+    categories_list = [
+        "MEDICINES", "COSMETICS & PERSONAL CARE", "MEDICAL INSTRUMENTS",
+        "SURGICAL & FIRST AID ITEMS", "HOSPITAL HYGIENE PRODUCTS",
+        "WELLNESS & HEALTH SUPPLEMENTS", "OTHERS"
     ]
-    for item in real_items:
-        if not Product.query.filter_by(sku=item['sku']).first():
-            db.session.add(Product(sku=item['sku'], name=item['name'], price=item['price'], 
-                                   category_id=cat_map[item['cat']], search_tags=item['tags'], image_url="https://via.placeholder.com/150"))
     
+    cat_map = {}
+    for c_name in categories_list:
+        cat = Category.query.filter_by(name=c_name).first()
+        if not cat:
+            cat = Category(name=c_name)
+            db.session.add(cat)
+            db.session.commit()
+        cat_map[c_name] = cat.id
+
+    # Sync Products
+    for item in REAL_PRODUCTS:
+        if not Product.query.filter_by(sku=item['sku']).first():
+            db.session.add(Product(
+                sku=item['sku'], 
+                name=item['name'], 
+                price=item['price'], 
+                category_id=cat_map[item['cat']], 
+                description=item['desc'],
+                search_tags=item['tags'], 
+                image_url="https://via.placeholder.com/150"
+            ))
+    
+    # Sync Medical Registry
     if not MedicalRegistry.query.filter_by(license_number="REG-12345").first():
-        db.session.add(MedicalRegistry(license_number="REG-12345", doctor_name="Dr. Arun", 
-                                       expiry_date=datetime.now().date()+timedelta(days=365), status="Active"))
+        db.session.add(MedicalRegistry(
+            license_number="REG-12345", 
+            doctor_name="Dr. Arun", 
+            expiry_date=datetime.now().date()+timedelta(days=365), 
+            status="Active"
+        ))
+    
     db.session.commit()
 
+# --- 3. EXECUTION ---
 with app.app_context():
     db.create_all()
-    seed_data()
+    seed_database() # Mismatch fix: seed_database-ah call pandrom
     print("Database is ready with real-world products!")
+
+
 # ---------------- ROUTES ----------------
 @app.route('/')
 def index():
+    # 1. Ella categories-aiyum sidebar-kaga edukkurom
+    categories = Category.query.all()
+    
+    # 2. Search query matrum Category filter check pandrom
     q = request.args.get('q', '').strip()
-    products = Product.query.filter((Product.name.ilike(f'%{q}%')) | (Product.search_tags.ilike(f'%{q}%'))).all() if q else Product.query.all()
-    return render_template('index.html', products=products)
+    cat_id = request.args.get('cat')
 
-@app.route('/api/suggestions')
+    if cat_id:
+        # Particular category click panna products filter aagum
+        products = Product.query.filter_by(category_id=cat_id).all()
+    elif q:
+        products = Product.query.filter(
+            (Product.name.contains(q)) | (Product.search_tags.contains(q))
+        ).all()
+    else:
+        products = Product.query.all()
+        
+    return render_template('index.html', products=products, categories=categories)
+app.route('/api/suggestions')
 def get_suggestions():
     q = request.args.get('q', '').lower()
     if len(q) < 2: return jsonify([])

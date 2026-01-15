@@ -22,6 +22,18 @@
         .product-card:hover {
             transform: translateY(-5px);
         }
+        .list-group-item-action:hover {
+        background-color: #f8f9fa;
+        color: #0d6efd;
+        border-left: 4px solid #0d6efd;
+        transition: 0.2s;
+    }
+    .product-card {
+        transition: transform 0.3s;
+    }
+    .product-card:hover {
+        transform: translateY(-5px);
+    }
     </style>
 </head>
 <body>
@@ -105,13 +117,13 @@
                    </div>
                </div>
             </div>
-    <div class="col-xl-5 col-xxl-6 d-none d-xl-block text-center">
-    <!-- Local file-ku pathula direct-ah intha link-ah kudunga -->
-       <img class="img-fluid rounded-circle shadow-lg my-5" 
-        <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" style="max-width:350px;">
-          alt="Logo" 
-          style="max-width: 350px;">
-    </div>
+   <div class="col-xl-5 col-xxl-6 d-none d-xl-block text-center">
+    <img class="img-fluid rounded-circle shadow-lg my-5" 
+         <img src="https://static.vecteezy.com/system/resources/thumbnails/017/347/820/small/creative-medical-pharmacy-logo-design-design-concept-free-vector.jpg"
+
+         alt="Medical Logo" 
+        style="max-width: 400px; border: 8px solid white;">
+   </div>
         </div>
     </div>
 </header>
@@ -239,4 +251,103 @@ document.getElementById('searchInput').addEventListener('input', function() {
 });
 </script>
 </body>
+<div class="container mt-5">
+    <div class="row">
+        
+        <!-- SIDEBAR: Category List -->
+        <div class="col-md-3 mb-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white fw-bold">
+                    <i class="bi bi-filter-left"></i> Shop by Category
+                </div>
+                <div class="list-group list-group-flush">
+                    <a href="/" class="list-group-item list-group-item-action">All Products</a>
+                    
+                    {% for cat in categories %}
+                    <a href="/?cat={{ cat.id }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                        {{ cat.name }}
+                        <!-- Optional: Count kaatuna innum professional-ah irukkum -->
+                        <span class="badge bg-light text-primary rounded-pill small">{{ cat.products|length }}</span>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Optional: AI Assistant or Help banner in Sidebar -->
+            <div class="card mt-4 bg-light border-0 p-3 shadow-sm">
+                <p class="small fw-bold mb-1 text-primary">Need Help?</p>
+                <p class="small text-muted mb-0">Call us: +91 9876543210</p>
+            </div>
+        </div>
+
+        <!-- MAIN CONTENT: Products Grid -->
+        <div class="col-md-9">
+            <h3 class="mb-4 fw-bold">Available Products</h3>
+            
+            <div class="row">
+                {% if products %}
+                    {% for product in products %}
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100 shadow-sm border-0 product-card">
+                            <img src="{{ product.image_url }}" class="card-img-top p-3" alt="{{ product.name }}">
+                            <div class="card-body">
+                                <span class="badge bg-soft-primary text-primary mb-2" style="background-color: #e7f1ff;">{{ product.category.name }}</span>
+                                <h6 class="card-title fw-bold mb-1">{{ product.name }}</h6>
+                                <p class="text-muted small mb-2 text-truncate">{{ product.description }}</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="text-primary fw-bold">₹{{ product.price }}</span>
+                                    <a href="{{ url_for('add_to_cart', product_id=product.id) }}" class="btn btn-success btn-sm">Add</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="col-12 text-center py-5">
+                        <img src="https://cdn-icons-png.flaticon.com/512/7486/7486744.png" width="100" class="mb-3 opacity-50">
+                        <p class="text-muted">No medicines found in this category.</p>
+                        <a href="/" class="btn btn-primary btn-sm">View All</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+    </div>
+</div>
+<!-- Inside index.html Row -->
+<div class="row">
+    <!-- Sidebar -->
+    <div class="col-md-3">
+        <div class="list-group shadow-sm">
+            <a href="/" class="list-group-item list-group-item-action bg-primary text-white">All Categories</a>
+            {% for cat in categories %}
+            <a href="/?cat={{ cat.id }}" class="list-group-item list-group-item-action">
+                {{ cat.name }} 
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Product Grid -->
+    <div class="col-md-9">
+        <div class="row">
+            {% for product in products %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body">
+                        <!-- Category Badge -->
+                        <span class="badge bg-light text-primary mb-2">{{ product.category.name }}</span>
+                        <h6 class="fw-bold">{{ product.name }}</h6>
+                        <p class="small text-muted">{{ product.description }}</p>
+                        <div class="d-flex justify-content-between">
+                            <span class="text-success fw-bold">₹{{ product.price }}</span>
+                            <a href="/add_to_cart/{{product.id}}" class="btn btn-sm btn-outline-success">Add</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
 </html>
