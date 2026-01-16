@@ -361,19 +361,24 @@ def admin_dashboard():
     if current_user.username != 'admin':
         return redirect(url_for('index'))
     
-    # Dashboard-kaga chinna calculations
+    # Ella variyum left-la ore straight line-la irukanum
     p_count = Product.query.count()
     o_count = Order.query.count()
     total_rev = db.session.query(db.func.sum(Order.total_amount)).scalar() or 0
     
-    products = Product.query.all()
+    products = Product.query.all() # <-- Intha line-ah backspace panni mela ulla line-ku nera vainga
     orders = Order.query.all()
     categories = Category.query.all()
+    
+    # Low stock update logic
+    low_stock_products = Product.query.filter(Product.stock_quantity < 10).all()
     
     return render_template('admin.html', 
                            p_count=p_count, o_count=o_count, 
                            total_rev=total_rev, products=products, 
-                           orders=orders, categories=categories)
+                           orders=orders, categories=categories,
+                           low_stock_count=len(low_stock_products))
+
 @app.route('/download_invoice/<int:order_id>')
 @login_required
 def download_invoice(order_id):

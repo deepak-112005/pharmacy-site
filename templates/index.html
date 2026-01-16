@@ -9,8 +9,143 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+<style>
+    #chat-circle { position: fixed; bottom: 30px; right: 30px; background: #00a699; width: 60px; height: 60px; border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 10px 25px rgba(0,0,0,0.1); z-index: 1000; }
+    #chat-box { position: fixed; bottom: 100px; right: 30px; width: 300px; background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); display: none; z-index: 1000; overflow: hidden; }
+    .chat-header { background: #002b5c; color: white; padding: 15px; font-weight: bold; }
+    .chat-body { height: 300px; padding: 15px; overflow-y: auto; font-size: 0.85rem; }
+</style>
 
+<div id="chat-circle" onclick="document.getElementById('chat-box').style.display='block'"><i class="bi bi-chat-dots-fill fs-3"></i></div>
+<div id="chat-box">
+    <div class="chat-header d-flex justify-content-between">Medi kart AI <span onclick="this.parentElement.parentElement.style.display='none'" style="cursor:pointer">×</span></div>
+    <div class="chat-body" id="chatBody">Hi! Enna help venum nanba? (Ex: Type 'fever' or 'cold')</div>
+    <div class="p-2 border-top"><input type="text" id="chatInput" class="form-control form-control-sm" placeholder="Type here..." onkeypress="if(event.key==='Enter') sendMessage()"></div>
+</div>
+
+<script>
+function sendMessage() {
+    let input = document.getElementById('chatInput');
+    let body = document.getElementById('chatBody');
+    let text = input.value.toLowerCase();
+    body.innerHTML += `<div class="text-end mt-2"><b>You:</b> ${text}</div>`;
+    
+    let reply = "Puriyala nanba. Try 'fever' or 'pain'.";
+    if(text.includes('fever')) reply = "Fever-ku <b>Dolo 650</b> nallathu. Dr. suggest panna adhai eduthukonga.";
+    if(text.includes('pain')) reply = "Pain relief-ku <b>Saridon</b> use pannalam.";
+    if(text.includes('skincare')) reply = "Face wash and Sunscreen check pannunga.";
+
+    setTimeout(() => {
+        body.innerHTML += `<div class="text-start mt-2 text-primary"><b>AI:</b> ${reply}</div>`;
+        body.scrollTop = body.scrollHeight;
+    }, 500);
+    input.value = '';
+}
+</script>
     <style>
+
+        /* index.html Style update */
+:root {
+    --primary-mint: #10b981; /* Modern Green */
+    --midnight-blue: #1e293b; /* Premium Navy */
+    --soft-gray: #f8fafc;
+    --glass: rgba(255, 255, 255, 0.8);
+}
+
+body {
+    background-color: var(--soft-gray);
+    font-family: 'Plus Jakarta Sans', sans-serif; /* Modern Font */
+}
+
+/* 1. Glassmorphism Navbar */
+.navbar {
+    backdrop-filter: blur(10px);
+    background: rgba(30, 41, 59, 0.9) !important;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    padding: 1rem 0;
+}
+
+/* 2. Modern Search Bar */
+.search-container {
+    background: white;
+    border-radius: 100px;
+    padding: 5px 10px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+    transition: 0.3s;
+}
+
+.search-container:focus-within {
+    box-shadow: 0 15px 35px rgba(16, 185, 129, 0.15);
+}
+
+/* 3. Category "Chips" UI */
+.category-pill {
+    padding: 10px 20px;
+    border-radius: 100px;
+    background: white;
+    color: var(--midnight-blue);
+    margin: 5px;
+    display: inline-block;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.85rem;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+    transition: 0.3s;
+}
+
+.category-pill:hover, .category-pill.active {
+    background: var(--primary-mint);
+    color: white;
+    transform: translateY(-3px);
+}
+
+/* 4. Refined Product Card */
+.product-card {
+    border-radius: 28px;
+    border: none;
+    background: white;
+    padding: 10px;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+
+.product-card:hover {
+    transform: translateY(-12px);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+}
+
+.img-container {
+    background-color: #f1f5f9;
+    border-radius: 22px;
+    padding: 30px;
+    overflow: hidden;
+}
+
+.product-card img {
+    transition: 0.5s;
+}
+
+.product-card:hover img {
+    transform: scale(1.1);
+}
+
+/* 5. Soft Buttons */
+.btn-mint {
+    background: var(--primary-mint);
+    color: white;
+    border-radius: 16px;
+    padding: 12px 25px;
+    font-weight: 700;
+    border: none;
+    transition: 0.3s;
+}
+
+.btn-mint:hover {
+    background: #059669;
+    box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);
+}
+
         :root {
             --primary-color: #00a699; /* Medical Teal */
             --secondary-color: #004a99; /* Deep Blue */
@@ -253,6 +388,12 @@
     {% endwith %}
 
     <div class="row">
+        {% if 'Success' in message %}
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+<script>
+    confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+</script>
+{% endif %}
         <!-- Sidebar: Categories -->
         <div class="col-md-3">
             <div class="card sidebar-card shadow-sm mb-4">
@@ -265,6 +406,15 @@
                         <span class="badge bg-light text-dark rounded-pill">{{ cat.products|length }}</span>
                     </a>
                     {% endfor %}
+                    <!-- index.html - Inside Container -->
+<div class="container mt-4 mb-5 overflow-auto text-nowrap py-2 no-scrollbar">
+    <a href="/" class="category-pill shadow-sm">⚡ All Medicines</a>
+    {% for cat in categories %}
+    <a href="/?cat={{ cat.id }}" class="category-pill shadow-sm">
+        {{ cat.name }}
+    </a>
+    {% endfor %}
+</div>
                 </div>
             </div>
 
@@ -276,6 +426,24 @@
                     <input type="text" name="symptom" class="form-control form-control-sm mb-2 rounded-pill" placeholder="e.g. Fever, Cough">
                     <button class="btn btn-warning btn-sm w-100 rounded-pill fw-bold">Suggest</button>
                 </form>
+
+             <div class="card mt-4 border-0 shadow-sm p-3 bg-white rounded-4">
+    <h6 class="fw-bold"><i class="bi bi-heart-pulse text-danger"></i> BMI Calculator</h6>
+    <input type="number" id="weight" class="form-control form-control-sm mb-2" placeholder="Weight (kg)">
+    <input type="number" id="height" class="form-control form-control-sm mb-2" placeholder="Height (cm)">
+    <button class="btn btn-primary btn-sm w-100" onclick="calcBMI()">Calculate</button>
+    <div id="bmiResult" class="mt-2 small fw-bold text-center text-primary"></div>
+</div>
+
+<script>
+function calcBMI() {
+    let w = document.getElementById('weight').value;
+    let h = document.getElementById('height').value / 100;
+    let bmi = (w / (h * h)).toFixed(1);
+    let msg = bmi < 18.5 ? "Underweight" : (bmi < 25 ? "Normal" : "Overweight");
+    document.getElementById('bmiResult').innerHTML = `BMI: ${bmi} (${msg})`;
+}
+</script>   
             </div>
         </div>
 

@@ -1,48 +1,104 @@
-<div class="container mt-5">
-    <h3>My Order History</h3>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Orders - Medi kart</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        :root { --primary-color: #00a699; --secondary-color: #004a99; }
+        body { font-family: 'Poppins', sans-serif; background-color: #f8fafc; }
+        .order-card { border: none; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); margin-bottom: 25px; background: white; overflow: hidden; }
+        .order-header { background: #f8fafc; padding: 15px 25px; border-bottom: 1px solid #edf2f7; }
+        
+        /* Tracker Style */
+        .order-track { margin: 20px 0; display: flex; justify-content: space-between; position: relative; }
+        .track-step { font-size: 0.75rem; text-align: center; flex: 1; position: relative; z-index: 1; }
+        .track-step::before { content: ''; height: 4px; width: 100%; background: #e2e8f0; position: absolute; top: 10px; left: -50%; z-index: -1; }
+        .track-step:first-child::before { display: none; }
+        .track-dot { width: 20px; height: 20px; background: #cbd5e1; border-radius: 50%; display: inline-block; margin-bottom: 5px; border: 3px solid white; }
+        
+        .active .track-dot { background: var(--primary-color); box-shadow: 0 0 0 4px rgba(0,166,153,0.1); }
+        .active .track-text { color: var(--primary-color); font-weight: 600; }
+        .active::before { background: var(--primary-color) !important; }
+    </style>
+</head>
+<body>
 
-    <table class="table table-hover mt-3 shadow-sm">
-        <thead class="table-dark">
-            <tr>
-                <th>Order ID</th>
-                <th>Total</th>
-                <th>Prescription</th>
-                <th>Status</th>
-                <th>Invoice</th>
-            </tr>
-        </thead>
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-dark"><i class="bi bi-bag-check-fill text-primary me-2"></i>My Orders</h2>
+        <a href="/" class="btn btn-outline-primary rounded-pill btn-sm">← Back to Shop</a>
+    </div>
 
-        <tbody>
-            {% for order in orders %}
-            <tr>
-                <td>#{{ order.id }}</td>
-
-                <td>₹{{ order.total_amount }}</td>
-
-                <td>
-                    {% if order.prescription_file %}
-                        <a href="{{ url_for('static', filename='uploads/' + order.prescription_file) }}" 
-                           target="_blank" 
-                           class="badge bg-success text-decoration-none">
-                            View File
-                        </a>
-                    {% else %}
-                        <span class="badge bg-secondary">No File</span>
-                    {% endif %}
-                </td>
-
-                <td>
-                    <span class="badge bg-info">Processing</span>
-                </td>
-
-                <td>
-                    <a href="{{ url_for('download_invoice', order_id=order.id) }}"
-                       class="btn btn-sm btn-outline-primary">
-                        Download PDF
-                    </a>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    {% if orders %}
+        {% for order in orders %}
+        <div class="order-card shadow-sm">
+            <div class="order-header d-flex justify-content-between align-items-center">
+                <div>
+                    <span class="text-muted small">ORDER ID:</span>
+                    <span class="fw-bold">#MK-{{ order.id }}</span>
+                </div>
+                <div class="text-end">
+                    <span class="text-muted small">TOTAL:</span>
+                    <span class="fw-bold text-primary">₹{{ order.total_amount }}</span>
+                </div>
+            </div>
+            
+            <div class="p-4">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <!-- Order Tracking Timeline (Now inside the loop) -->
+                        <div class="order-track">
+                            <div class="track-step active">
+                                <span class="track-dot"></span>
+                                <div class="track-text">Ordered</div>
+                            </div>
+                            <div class="track-step {% if order.verification_status == 'Approved' %}active{% endif %}">
+                                <span class="track-dot"></span>
+                                <div class="track-text">AI Verified</div>
+                            </div>
+                            <div class="track-step">
+                                <span class="track-dot"></span>
+                                <div class="track-text">Packing</div>
+                            </div>
+                            <div class="track-step">
+                                <span class="track-dot"></span>
+                                <div class="track-text">Delivered</div>
+                            </div>
+                        </div>
+                        
+                        <p class="small text-muted mt-3">
+                            <i class="bi bi-geo-alt-fill me-1"></i> Delivery to: {{ order.address }}
+                        </p>
+                    </div>
+                    
+                    <div class="col-md-4 text-md-end">
+                        <div class="d-grid gap-2">
+                            <a href="{{ url_for('download_invoice', order_id=order.id) }}" class="btn btn-light btn-sm rounded-pill fw-bold border">
+                                <i class="bi bi-file-earmark-pdf me-1"></i> Download Invoice
+                            </a>
+                            {% if order.prescription_file %}
+                            <a href="{{ url_for('static', filename='uploads/' + order.prescription_file) }}" target="_blank" class="btn btn-outline-info btn-sm rounded-pill">
+                                <i class="bi bi-eye me-1"></i> View Prescription
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="text-center py-5">
+            <i class="bi bi-cart-x display-1 text-muted"></i>
+            <h4 class="mt-3">No orders placed yet.</h4>
+            <a href="/" class="btn btn-primary mt-3 px-4 rounded-pill">Shop Medicines Now</a>
+        </div>
+    {% endif %}
 </div>
+
+</body>
+</html>
