@@ -41,7 +41,25 @@ class User(db.Model, UserMixin):
     username = db.Column(db.String(50), unique=True, nullable=False)
     email = db.Column(db.String(100), unique=True, nullable=False)
     password = db.Column(db.String(200), nullable=False)
+    # Puthu columns for Profile
+    address = db.Column(db.String(500)) 
+    phone = db.Column(db.String(20))
 
+# --- Profile Route ---
+@app.route('/profile', methods=['GET', 'POST'])
+@login_required
+def profile():
+    if request.method == 'POST':
+        # User update pandra details-ah save pandrom
+        current_user.address = request.form.get('address')
+        current_user.phone = request.form.get('phone')
+        db.session.commit()
+        flash('Profile updated successfully!', 'success')
+        return redirect(url_for('profile'))
+        
+    # User panna orders count edukkurom summary-kaga
+    order_count = Order.query.filter_by(user_id=current_user.id).count()
+    return render_template('profile.html', user=current_user, order_count=order_count)
 class Category(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False, unique=True)
@@ -340,9 +358,22 @@ def my_orders():
 @app.route('/admin')
 @login_required
 def admin_dashboard():
-    if current_user.username != 'admin': return redirect(url_for('index'))
-    return render_template('admin.html', products=Product.query.all(), orders=Order.query.all(), categories=Category.query.all())
-
+    if current_user.username != 'admin':
+        return redirect(url_for('index'))
+    
+    # Dashboard-kaga chinna calculations
+    p_count = Product.query.count()
+    o_count = Order.query.count()
+    total_rev = db.session.query(db.func.sum(Order.total_amount)).scalar() or 0
+    
+    products = Product.query.all()
+    orders = Order.query.all()
+    categories = Category.query.all()
+    
+    return render_template('admin.html', 
+                           p_count=p_count, o_count=o_count, 
+                           total_rev=total_rev, products=products, 
+                           orders=orders, categories=categories)
 @app.route('/download_invoice/<int:order_id>')
 @login_required
 def download_invoice(order_id):

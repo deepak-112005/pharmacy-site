@@ -3,140 +3,248 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Medi kart- Home</title>
+    <title>Medi kart - Your Online Pharmacy</title>
 
-    <!-- Bootstrap 5 CSS -->
+    <!-- Google Fonts & Bootstrap 5 -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
 
     <style>
+        :root {
+            --primary-color: #00a699; /* Medical Teal */
+            --secondary-color: #004a99; /* Deep Blue */
+            --light-bg: #f4f7f6;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--light-bg);
+            scroll-behavior: smooth;
+        }
+
+        /* Navbar Style */
+        /* Premium Navbar Styling */
+.navbar {
+    background: rgba(0, 74, 153, 0.95) !important; /* Deep Blue Glass effect */
+    backdrop-filter: blur(10px);
+    border-bottom: 2px solid rgba(255,255,255,0.1);
+    padding: 12px 0;
+}
+
+.nav-link {
+    color: rgba(255,255,255,0.85) !important;
+    font-weight: 500;
+    font-size: 0.9rem;
+    padding: 8px 15px !important;
+    transition: 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Icon-kum text-kum gap */
+}
+
+.nav-link:hover {
+    color: #fff !important;
+    background: rgba(255,255,255,0.1);
+    border-radius: 12px;
+}
+
+.nav-link i {
+    font-size: 1.1rem;
+    color: #00d2ff; /* Light blue icons */
+}
+
+/* Logout Button Special Style */
+.btn-logout {
+    background: rgba(255, 65, 54, 0.15);
+    color: #ff4136 !important;
+    border: 1px solid rgba(255, 65, 54, 0.3);
+    border-radius: 12px;
+    font-weight: 600;
+}
+
+.btn-logout:hover {
+    background: #ff4136;
+    color: white !important;
+}
+
+/* Search Bar Improvement */
+.search-group {
+    background: white;
+    border-radius: 15px;
+    padding: 2px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.search-input {
+    border: none !important;
+    box-shadow: none !important;
+    padding-left: 15px;
+}
+
+.search-btn {
+    border-radius: 12px !important;
+    background: var(--primary-color) !important;
+    border: none;
+    padding: 5px 20px !important;
+}
+
+        /* Hero Section */
         .hero-section {
-            background: #f8f9fa;
+            background: white;
+            border-radius: 0 0 50px 50px;
             padding: 60px 0;
-            border-bottom: 1px solid #dee2e6;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            margin-bottom: 40px;
         }
+
+        /* Product Card Style */
         .product-card {
-            transition: transform 0.2s;
             border: none;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-radius: 20px;
+            transition: all 0.3s ease;
+            background: white;
+            overflow: hidden;
+            height: 100%;
         }
+
         .product-card:hover {
-            transform: translateY(-5px);
+            transform: translateY(-10px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
         }
-        .list-group-item-action:hover {
-        background-color: #f8f9fa;
-        color: #0d6efd;
-        border-left: 4px solid #0d6efd;
-        transition: 0.2s;
-    }
-    .product-card {
-        transition: transform 0.3s;
-    }
-    .product-card:hover {
-        transform: translateY(-5px);
-    }
+
+        .card-img-top {
+            height: 160px;
+            object-fit: contain;
+            padding: 15px;
+            background: #fdfdfd;
+        }
+
+        /* Sidebar & Badge */
+        .sidebar-card { border-radius: 15px; border: none; }
+        .list-group-item { border: none; padding: 12px 20px; transition: 0.3s; }
+        .list-group-item:hover { background: #e0f2f1; color: var(--primary-color); }
+        .list-group-item.active { background-color: var(--primary-color) !important; }
+        
+        .badge-cat {
+            background-color: #e0f2f1;
+            color: var(--primary-color);
+            border-radius: 50px;
+            padding: 4px 10px;
+            font-size: 0.7rem;
+        }
+
+        #suggestionBox { z-index: 1050; border-radius: 10px; overflow: hidden; }
     </style>
 </head>
 <body>
 
-<!-- ================= NAVBAR ================= -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm sticky-top">
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark sticky-top">
     <div class="container">
+        <!-- Logo -->
+        <a class="navbar-brand fw-bold d-flex align-items-center" href="/">
+            <i class="bi bi-capsule-pill fs-2 text-info me-2"></i>
+            <span>Medi<span class="text-info">kart</span></span>
+        </a>
 
-        <a class="navbar-brand fw-bold" href="/">Medi kart</a>
+        <!-- Mobile Toggle -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
 
-        <!-- SEARCH BAR -->
-        <form class="d-flex mx-auto col-md-5" action="/" method="GET">
-            <input class="form-control me-2"
-                   type="search"
-                   name="q"
-                   placeholder="Search medicines..."
-                   value="{{ search_query | default('') }}">
-            <button class="btn btn-warning fw-bold" type="submit">Search</button>
-        </form>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <!-- Search in Center -->
+            <form class="d-flex mx-auto w-50" action="/" method="GET">
+                <div class="input-group search-group">
+                    <span class="input-group-text bg-white border-0"><i class="bi bi-search text-muted"></i></span>
+                    <input class="form-control search-input" type="search" name="q" placeholder="Search medicines...">
+                    <button class="btn btn-primary search-btn" type="submit">Search</button>
+                </div>
+            </form>
 
-        <!-- RIGHT SIDE -->
-        <div class="ms-auto d-flex align-items-center">
+            <!-- Action Icons -->
+            <ul class="navbar-nav ms-auto align-items-center">
+                {% if current_user.is_authenticated %}
+                    
+                    {% if current_user.username == 'admin' %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin">
+                            <i class="bi bi-speedometer2"></i> Admin
+                        </a>
+                    </li>
+                    {% endif %}
 
-            {% if current_user.is_authenticated %}
-                <span class="text-white me-3 small d-none d-md-block">
-                    Hi, {{ current_user.username }}
-                </span>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/profile">
+                            <i class="bi bi-person-circle"></i> Profile
+                        </a>
+                    </li>
 
-                {% if current_user.username == 'admin' %}
-                    <a class="btn btn-dark btn-sm me-2" href="/admin">
-                        Admin Panel
-                    </a>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/my_orders">
+                            <i class="bi bi-box-seam"></i> Orders
+                        </a>
+                    </li>
+
+                    <li class="nav-item ms-lg-2">
+                        <a class="nav-link btn-logout" href="/logout">
+                            <i class="bi bi-power"></i> Logout
+                        </a>
+                    </li>
+
+                {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/login"><i class="bi bi-box-arrow-in-right"></i> Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="btn btn-info btn-sm rounded-pill px-3 ms-2 fw-bold" href="/register">Register</a>
+                    </li>
                 {% endif %}
 
-                <a class="btn btn-outline-light btn-sm me-2" href="/my_orders">
-                    My Orders
-                </a>
-
-                <a class="btn btn-outline-light btn-sm me-2" href="/logout">
-                    Logout
-                </a>
-            {% else %}
-                <a class="btn btn-outline-light btn-sm me-2" href="/login">
-                    Login
-                </a>
-                <a class="btn btn-light btn-sm me-2" href="/register">
-                    Register
-                </a>
-            {% endif %}
-
-            <a class="btn btn-warning btn-sm" href="/cart">
-                Cart 🛒
-            </a>
+                <!-- Cart Icon -->
+                <li class="nav-item ms-lg-3">
+                    <a class="btn btn-warning rounded-pill d-flex align-items-center px-3 shadow-sm" href="/cart">
+                        <i class="bi bi-cart3 fs-5 me-1"></i>
+                        <span class="badge bg-dark rounded-pill" style="font-size: 0.7rem;">
+                            {{ session['cart']|length if session['cart'] else 0 }}
+                        </span>
+                    </a>
+                </li>
+            </ul>
         </div>
     </div>
 </nav>
 
-<!-- ================= HERO SECTION ================= -->
-{% if not search_query %}
-<header class="hero-section mb-5">
+<!-- Hero Section (Only shown on home) -->
+{% if not request.args.get('q') and not request.args.get('cat') %}
+<header class="hero-section">
     <div class="container">
         <div class="row align-items-center">
-
-            <div class="col-md-7">
-                <h1 class="display-4 fw-bold">Welcome to Medi kart</h1>
-                <p class="lead text-muted">
-                    Your health is our priority. Get genuine medicines delivered safely.
-                </p>
-                <a href="#products-list" class="btn btn-primary btn-lg">
-                    Shop Now
-                </a>
+            <div class="col-lg-7 text-center text-lg-start">
+                <h1 class="display-4 fw-bold text-dark">Welcome to <span style="color: var(--primary-color);">Medi kart</span></h1>
+                <p class="lead text-muted mb-4">Your health is our priority. Get 100% genuine medicines delivered safely to your doorstep.</p>
+                <div class="d-flex gap-3 justify-content-center justify-content-lg-start">
+                    <a href="#products-start" class="btn btn-primary btn-lg rounded-pill px-5 shadow">Shop Now</a>
+                    <button class="btn btn-outline-secondary btn-lg rounded-pill px-4" data-bs-toggle="modal" data-bs-target="#aiModal">Ask AI Assistant</button>
+                </div>
             </div>
-
-            <!-- col-lg-12 nu mathitu text-center kudunga -->
-            <div class="col-lg-12 text-center">
-                 <div class="my-5">
-                      <h1 class="display-5 fw-bolder text-dark mb-2">Welcome to Medi kart</h1>
-                <p class="lead fw-normal text-muted mb-4">Your health is our priority. Get genuine medicines delivered safely.</p>
-                <div class="d-grid gap-3 d-sm-flex justify-content-center">
-                    <a class="btn btn-primary btn-lg px-4 me-sm-3" href="#products">Shop Now</a>
-                   </div>
-               </div>
+            <div class="col-lg-5 text-center mt-5 mt-lg-0">
+                <img src="https://static.vecteezy.com/system/resources/thumbnails/017/347/820/small/creative-medical-pharmacy-logo-design-design-concept-free-vector.jpg" 
+                     class="img-fluid rounded-circle shadow-lg" alt="Medi Logo" style="max-width: 350px; border: 10px solid white;">
             </div>
-   <div class="col-xl-5 col-xxl-6 d-none d-xl-block text-center">
-    <img class="img-fluid rounded-circle shadow-lg my-5" 
-         <img src="https://static.vecteezy.com/system/resources/thumbnails/017/347/820/small/creative-medical-pharmacy-logo-design-design-concept-free-vector.jpg"
-
-         alt="Medical Logo" 
-        style="max-width: 400px; border: 8px solid white;">
-   </div>
         </div>
     </div>
 </header>
 {% endif %}
 
-<!-- ================= PRODUCTS ================= -->
-<div class="container" id="products-list">
-
-    <!-- FLASH MESSAGES -->
+<main class="container py-4" id="products-start">
+    <!-- Flash Messages -->
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             {% for category, message in messages %}
-                <div class="alert alert-{{ category }} alert-dismissible fade show">
+                <div class="alert alert-{{ category }} alert-dismissible fade show rounded-pill px-4 shadow-sm" role="alert">
                     {{ message }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
@@ -144,210 +252,120 @@
         {% endif %}
     {% endwith %}
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold">
-            {{ 'Search Results' if search_query else 'Available Medicines' }}
-        </h2>
-
-        {% if search_query %}
-            <a href="/" class="btn btn-outline-secondary btn-sm">
-                Clear Search
-            </a>
-        {% endif %}
-    </div>
-
     <div class="row">
-        {% if products %}
-            {% for product in products %}
-                <div class="col-6 col-md-4 col-lg-3 mb-4">
-                    <div class="card h-100 product-card">
-
-                        <img src="{{ product.image_url }}"
-                             class="card-img-top p-3"
-                             style="height:180px; object-fit:contain;">
-
-                        <div class="card-body d-flex flex-column text-center">
-                            <h6 class="fw-bold">{{ product.name }}</h6>
-                            <p class="text-muted small flex-grow-1">
-                                {{ product.description }}
-                            </p>
-                            <h5 class="text-primary fw-bold">
-                                ₹{{ product.price }}
-                            </h5>
-
-                            <a href="{{ url_for('add_to_cart', product_id=product.id) }}"
-                               class="btn btn-success w-100 mt-2">
-                                Add to Cart
-                            </a>
-                        </div>
-
-                    </div>
-                </div>
-            {% endfor %}
-        {% else %}
-            <div class="col-12 text-center py-5">
-                <h4 class="text-muted">No medicines found</h4>
-                <a href="/" class="btn btn-primary mt-3">
-                    Browse All
-                </a>
-            </div>
-        {% endif %}
-    </div>
-</div>
-
-<!-- ================= FOOTER ================= -->
-<footer class="bg-dark text-white text-center py-4 mt-5">
-    <p class="mb-0">
-        &copy; 2026 Medi kart Online Pharmacy. All rights reserved.
-    </p>
-</footer>
-
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-  <div class="card p-3 mb-4 bg-primary text-white border-0 shadow">
-    <h5>💊 AI Health Assistant</h5>
-    <p class="small">Enna prachana nu sollu nanba, naan medicine suggest pandren!</p>
-    <form action="/ai_assistant" method="POST" class="d-flex">
-        <input type="text" name="symptom" class="form-control me-2" placeholder="Ex: I have mild fever...">
-        <button class="btn btn-warning shadow-sm">Suggest</button>
-    </form>
-</div>
-
-{% if suggestions %}
-<div class="alert alert-success">
-    <strong>AI Suggestion:</strong> Based on your symptom, you might need:
-    <ul>
-        {% for s in suggestions %}
-            <li>{{ s.name }} - ₹{{ s.price }} <a href="/add_to_cart/{{s.id}}">Add Now</a></li>
-        {% endfor %}
-    </ul>
-</div>
-{% endif %}
-<div class="position-relative">
-    <input type="text" id="searchInput" class="form-control" placeholder="Search medicines or instruments...">
-    <!-- Inga thaan suggestions list aagum -->
-    <div id="suggestionBox" class="list-group position-absolute w-100 shadow-lg" style="z-index: 1000;"></div>
-</div>
-
-<script>
-document.getElementById('searchInput').addEventListener('input', function() {
-    let q = this.value;
-    let box = document.getElementById('suggestionBox');
-    
-    if(q.length < 2) { box.innerHTML = ''; return; }
-
-    fetch(`/api/suggestions?q=${q}`)
-        .then(res => res.json())
-        .then(data => {
-            box.innerHTML = '';
-            data.forEach(item => {
-                box.innerHTML += `
-                    <a href="/?q=${item.name}" class="list-group-item list-group-item-action">
-                        ${item.name} <small class="text-muted float-end">${item.cat}</small>
-                    </a>`;
-            });
-        });
-});
-</script>
-</body>
-<div class="container mt-5">
-    <div class="row">
-        
-        <!-- SIDEBAR: Category List -->
-        <div class="col-md-3 mb-4">
-            <div class="card shadow-sm border-0">
-                <div class="card-header bg-primary text-white fw-bold">
-                    <i class="bi bi-filter-left"></i> Shop by Category
-                </div>
+        <!-- Sidebar: Categories -->
+        <div class="col-md-3">
+            <div class="card sidebar-card shadow-sm mb-4">
+                <div class="card-header bg-white fw-bold py-3"><i class="bi bi-grid-fill me-2 text-primary"></i> Categories</div>
                 <div class="list-group list-group-flush">
-                    <a href="/" class="list-group-item list-group-item-action">All Products</a>
-                    
+                    <a href="/" class="list-group-item list-group-item-action {{ 'active' if not request.args.get('cat') }}">All Products</a>
                     {% for cat in categories %}
-                    <a href="/?cat={{ cat.id }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                    <a href="/?cat={{ cat.id }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center {{ 'active' if request.args.get('cat') == cat.id|string }}">
                         {{ cat.name }}
-                        <!-- Optional: Count kaatuna innum professional-ah irukkum -->
-                        <span class="badge bg-light text-primary rounded-pill small">{{ cat.products|length }}</span>
+                        <span class="badge bg-light text-dark rounded-pill">{{ cat.products|length }}</span>
                     </a>
                     {% endfor %}
                 </div>
             </div>
 
-            <!-- Optional: AI Assistant or Help banner in Sidebar -->
-            <div class="card mt-4 bg-light border-0 p-3 shadow-sm">
-                <p class="small fw-bold mb-1 text-primary">Need Help?</p>
-                <p class="small text-muted mb-0">Call us: +91 9876543210</p>
+            <!-- AI Symptom Checker Card -->
+            <div class="card bg-primary text-white p-3 border-0 shadow-sm rounded-4">
+                <h6>💊 Symptom Checker</h6>
+                <p class="small opacity-75">Tell us your symptoms, AI will suggest medicines.</p>
+                <form action="/ai_assistant" method="POST">
+                    <input type="text" name="symptom" class="form-control form-control-sm mb-2 rounded-pill" placeholder="e.g. Fever, Cough">
+                    <button class="btn btn-warning btn-sm w-100 rounded-pill fw-bold">Suggest</button>
+                </form>
             </div>
         </div>
 
-        <!-- MAIN CONTENT: Products Grid -->
+        <!-- Product Grid -->
         <div class="col-md-9">
-            <h3 class="mb-4 fw-bold">Available Products</h3>
-            
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4 class="fw-bold mb-0">Our Products</h4>
+                {% if request.args.get('q') or request.args.get('cat') %}
+                    <a href="/" class="btn btn-sm btn-outline-secondary rounded-pill">Clear Filter</a>
+                {% endif %}
+            </div>
+
+            {% if suggestions %}
+            <div class="alert alert-success rounded-4 shadow-sm mb-4">
+                <h6 class="fw-bold"><i class="bi bi-robot me-2"></i> AI Recommendations:</h6>
+                <div class="row mt-2">
+                    {% for s in suggestions %}
+                    <div class="col-md-6 small">{{ s.name }} - ₹{{ s.price }} <a href="/add_to_cart/{{s.id}}" class="fw-bold">Add</a></div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
             <div class="row">
                 {% if products %}
                     {% for product in products %}
                     <div class="col-md-4 mb-4">
-                        <div class="card h-100 shadow-sm border-0 product-card">
-                            <img src="{{ product.image_url }}" class="card-img-top p-3" alt="{{ product.name }}">
-                            <div class="card-body">
-                                <span class="badge bg-soft-primary text-primary mb-2" style="background-color: #e7f1ff;">{{ product.category.name }}</span>
-                                <h6 class="card-title fw-bold mb-1">{{ product.name }}</h6>
-                                <p class="text-muted small mb-2 text-truncate">{{ product.description }}</p>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <span class="text-primary fw-bold">₹{{ product.price }}</span>
-                                    <a href="{{ url_for('add_to_cart', product_id=product.id) }}" class="btn btn-success btn-sm">Add</a>
+                        <div class="card product-card shadow-sm">
+                            <img src="{{ product.image_url }}" class="card-img-top" alt="{{ product.name }}">
+                            <div class="card-body d-flex flex-column">
+                                <span class="badge badge-cat mb-2">{{ product.category.name }}</span>
+                                <h6 class="card-title fw-bold text-dark mb-1">{{ product.name }}</h6>
+                                <p class="card-text text-muted small mb-3 flex-grow-1">{{ product.description }}</p>
+                                <div class="d-flex justify-content-between align-items-center mt-auto">
+                                    <span class="h5 fw-bold text-primary mb-0">₹{{ product.price }}</span>
+                                    <a href="/add_to_cart/{{product.id}}" class="btn btn-success btn-sm shadow-sm px-3 rounded-pill">
+                                        <i class="bi bi-plus-lg me-1"></i>Add
+                                    </a>
                                 </div>
                             </div>
                         </div>
                     </div>
                     {% endfor %}
                 {% else %}
-                    <div class="col-12 text-center py-5">
-                        <img src="https://cdn-icons-png.flaticon.com/512/7486/7486744.png" width="100" class="mb-3 opacity-50">
-                        <p class="text-muted">No medicines found in this category.</p>
-                        <a href="/" class="btn btn-primary btn-sm">View All</a>
+                    <div class="col-12 text-center py-5 mt-5">
+                        <i class="bi bi-search text-muted display-1"></i>
+                        <p class="h5 text-muted mt-3">No medicines found. Try another search!</p>
                     </div>
                 {% endif %}
             </div>
         </div>
+    </div>
+</main>
 
+<footer class="bg-dark text-white text-center py-4 mt-5">
+    <div class="container">
+        <p class="mb-0 small opacity-75">&copy; 2026 Medi kart Online Pharmacy. Professional Healthcare Solutions.</p>
     </div>
-</div>
-<!-- Inside index.html Row -->
-<div class="row">
-    <!-- Sidebar -->
-    <div class="col-md-3">
-        <div class="list-group shadow-sm">
-            <a href="/" class="list-group-item list-group-item-action bg-primary text-white">All Categories</a>
-            {% for cat in categories %}
-            <a href="/?cat={{ cat.id }}" class="list-group-item list-group-item-action">
-                {{ cat.name }} 
-            </a>
-            {% endfor %}
-        </div>
-    </div>
+</footer>
 
-    <!-- Product Grid -->
-    <div class="col-md-9">
-        <div class="row">
-            {% for product in products %}
-            <div class="col-md-4 mb-4">
-                <div class="card h-100 border-0 shadow-sm">
-                    <div class="card-body">
-                        <!-- Category Badge -->
-                        <span class="badge bg-light text-primary mb-2">{{ product.category.name }}</span>
-                        <h6 class="fw-bold">{{ product.name }}</h6>
-                        <p class="small text-muted">{{ product.description }}</p>
-                        <div class="d-flex justify-content-between">
-                            <span class="text-success fw-bold">₹{{ product.price }}</span>
-                            <a href="/add_to_cart/{{product.id}}" class="btn btn-sm btn-outline-success">Add</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
-</div>
+<!-- JavaScript -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    // AI Search Suggestions
+    const searchInput = document.getElementById('searchInput');
+    const suggestionBox = document.getElementById('suggestionBox');
+
+    searchInput.addEventListener('input', function() {
+        let q = this.value;
+        if(q.length < 2) { suggestionBox.innerHTML = ''; return; }
+
+        fetch(`/api/suggestions?q=${q}`)
+            .then(res => res.json())
+            .then(data => {
+                suggestionBox.innerHTML = '';
+                data.forEach(item => {
+                    const a = document.createElement('a');
+                    a.href = `/?q=${item.name}`;
+                    a.className = 'list-group-item list-group-item-action small py-2';
+                    a.innerHTML = `<i class="bi bi-search me-2 text-muted"></i> ${item.name} <small class="text-muted float-end">${item.cat}</small>`;
+                    suggestionBox.appendChild(a);
+                });
+            });
+    });
+
+    document.addEventListener('click', function(e) {
+        if(!searchInput.contains(e.target)) suggestionBox.innerHTML = '';
+    });
+</script>
+
+</body>
 </html>
