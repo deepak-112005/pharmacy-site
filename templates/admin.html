@@ -235,5 +235,115 @@
     });
 </script>
 
+<div id="orders" class="table-card mt-5">
+    <h5 class="fw-bold mb-4"><i class="bi bi-truck me-2 text-warning"></i>Customer Orders Management</h5>
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>Order ID</th>
+                    <th>Customer Name</th>
+                    <th>Total Price</th>
+                    <th>Current Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for o in orders %}
+                <tr>
+                    <td>#MK-{{ o.id }}</td>
+                    <td>{{ o.full_name }}</td>
+                    <td class="fw-bold">₹{{ o.total_amount }}</td>
+                    <td>
+                        <span class="badge bg-info text-dark">{{ o.verification_status }}</span>
+                    </td>
+                    <td>
+                        <!-- Status Update Buttons -->
+                        <div class="btn-group shadow-sm">
+                            <a href="/admin/update_status/{{ o.id }}/Packing" class="btn btn-sm btn-warning fw-bold">
+                                <i class="bi bi-box-seam me-1"></i> Pack
+                            </a>
+                            <a href="/admin/update_status/{{ o.id }}/Delivered" class="btn btn-sm btn-success fw-bold">
+                                <i class="bi bi-check-circle me-1"></i> Deliver
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+<!-- Nav Tabs -->
+<ul class="nav nav-pills mb-4 shadow-sm p-2 bg-white rounded-pill" id="adminTab" role="tablist">
+    <li class="nav-item"><button class="nav-link active rounded-pill" data-bs-toggle="tab" data-bs-target="#inventory">Inventory</button></li>
+    <li class="nav-item"><button class="nav-link rounded-pill" data-bs-toggle="tab" data-bs-target="#order-review">Order Review</button></li>
+    <li class="nav-item"><button class="nav-link rounded-pill" data-bs-toggle="tab" data-bs-target="#customers">Customers</button></li>
+</ul>
+
+<div class="tab-content">
+    <!-- Tab 1: Inventory (Existing Table) -->
+    <div class="tab-pane fade show active" id="inventory">
+        <!-- Unga pazhaya inventory table code inga irukanum -->
+    </div>
+
+    <!-- Tab 2: Order Review & Tracking -->
+    <div class="tab-pane fade" id="order-review">
+        <div class="table-card">
+            <h5 class="fw-bold mb-4">Pending Verifications & Orders</h5>
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Customer</th>
+                        <th>Prescription</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for o in pending_orders %}
+                    <tr>
+                        <td>#MK-{{ o.id }}</td>
+                        <td>{{ o.full_name }}</td>
+                        <td>
+                            {% if o.prescription_file %}
+                            <a href="{{ url_for('static', filename='uploads/' + o.prescription_file) }}" target="_blank" class="btn btn-sm btn-link text-info">View Doc</a>
+                            {% else %} <span class="text-muted">No Doc</span> {% endif %}
+                        </td>
+                        <td><span class="badge bg-warning text-dark">{{ o.verification_status }}</span></td>
+                        <td>
+                            <a href="/admin/update_status/{{o.id}}/Approved" class="btn btn-sm btn-success rounded-pill px-3">Approve</a>
+                            <a href="/admin/update_status/{{o.id}}/Rejected" class="btn btn-sm btn-danger rounded-pill px-3">Reject</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Tab 3: Customer Management -->
+    <div class="tab-pane fade" id="customers">
+        <div class="table-card text-center p-5">
+            <h5 class="fw-bold mb-4">Registered Customers</h5>
+            <table class="table">
+                <thead>
+                    <tr><th>User ID</th><th>Username</th><th>Email</th><th>Total Orders</th></tr>
+                </thead>
+                <tbody>
+                    {% for u in users %}
+                    <tr>
+                        <td>#USER-{{ u.id }}</td>
+                        <td>{{ u.username }}</td>
+                        <td>{{ u.email }}</td>
+                        <td><span class="badge bg-primary">Active Member</span></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
 </body>
 </html>

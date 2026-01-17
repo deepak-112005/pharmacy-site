@@ -46,7 +46,54 @@
                     <span class="fw-bold text-primary">₹{{ order.total_amount }}</span>
                 </div>
             </div>
+           <!-- Inside the orders loop in orders.html -->
+<div class="p-4">
+    <div class="row">
+        <div class="col-md-8">
+            <h6 class="fw-bold mb-1">Medicines:</h6>
+            <p class="text-primary small mb-3">{{ order.medicines_ordered }}</p>
             
+            <!-- Tracking Timeline logic ... -->
+        </div>
+        
+        <div class="col-md-4 text-end">
+            <div class="d-grid gap-2">
+                <a href="{{ url_for('download_invoice', order_id=order.id) }}" class="btn btn-sm btn-light border">Download Invoice</a>
+                <!-- Cancel Button -->
+                <a href="{{ url_for('cancel_order', id=order.id) }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Intha order-ah cancel pannalaama?')">Cancel Order</a>
+            </div>
+        </div>
+    </div>
+</div> 
+
+<!-- Inside orders loop in orders.html -->
+<div class="order-track">
+    <!-- Step 1: Ordered (Always Active) -->
+    <div class="track-step active">
+        <span class="track-dot"></span>
+        <div class="track-text">Ordered</div>
+    </div>
+
+    <!-- Step 2: Verified (Active if Approved, Packing or Delivered) -->
+    <div class="track-step {% if order.verification_status in ['Approved', 'Packing', 'Delivered'] %}active{% endif %}">
+        <span class="track-dot"></span>
+        <div class="track-text">AI Verified</div>
+    </div>
+
+    <!-- Step 3: Packing (Active if Packing or Delivered) -->
+    <div class="track-step {% if order.verification_status in ['Packing', 'Delivered'] %}active{% endif %}">
+        <span class="track-dot"></span>
+        <div class="track-text">Packing</div>
+    </div>
+
+    <!-- Step 4: Delivered (Active ONLY if status is Delivered) -->
+    <div class="track-step {% if order.verification_status == 'Delivered' %}active{% endif %}">
+        <span class="track-dot"></span>
+        <div class="track-text">Delivered</div>
+    </div>
+</div>
+
+
             <div class="p-4">
                 <div class="row align-items-center">
                     <div class="col-md-8">

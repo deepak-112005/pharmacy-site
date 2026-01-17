@@ -6,271 +6,79 @@
     <title>Medi kart - Your Online Pharmacy</title>
 
     <!-- Google Fonts & Bootstrap 5 -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Plus+Jakarta+Sans:wght@400;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
-    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-<style>
-    #chat-circle { position: fixed; bottom: 30px; right: 30px; background: #00a699; width: 60px; height: 60px; border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 10px 25px rgba(0,0,0,0.1); z-index: 1000; }
-    #chat-box { position: fixed; bottom: 100px; right: 30px; width: 300px; background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); display: none; z-index: 1000; overflow: hidden; }
-    .chat-header { background: #002b5c; color: white; padding: 15px; font-weight: bold; }
-    .chat-body { height: 300px; padding: 15px; overflow-y: auto; font-size: 0.85rem; }
-</style>
 
-<div id="chat-circle" onclick="document.getElementById('chat-box').style.display='block'"><i class="bi bi-chat-dots-fill fs-3"></i></div>
-<div id="chat-box">
-    <div class="chat-header d-flex justify-content-between">Medi kart AI <span onclick="this.parentElement.parentElement.style.display='none'" style="cursor:pointer">×</span></div>
-    <div class="chat-body" id="chatBody">Hi! Enna help venum nanba? (Ex: Type 'fever' or 'cold')</div>
-    <div class="p-2 border-top"><input type="text" id="chatInput" class="form-control form-control-sm" placeholder="Type here..." onkeypress="if(event.key==='Enter') sendMessage()"></div>
-</div>
-
-<script>
-function sendMessage() {
-    let input = document.getElementById('chatInput');
-    let body = document.getElementById('chatBody');
-    let text = input.value.toLowerCase();
-    body.innerHTML += `<div class="text-end mt-2"><b>You:</b> ${text}</div>`;
-    
-    let reply = "Puriyala nanba. Try 'fever' or 'pain'.";
-    if(text.includes('fever')) reply = "Fever-ku <b>Dolo 650</b> nallathu. Dr. suggest panna adhai eduthukonga.";
-    if(text.includes('pain')) reply = "Pain relief-ku <b>Saridon</b> use pannalam.";
-    if(text.includes('skincare')) reply = "Face wash and Sunscreen check pannunga.";
-
-    setTimeout(() => {
-        body.innerHTML += `<div class="text-start mt-2 text-primary"><b>AI:</b> ${reply}</div>`;
-        body.scrollTop = body.scrollHeight;
-    }, 500);
-    input.value = '';
-}
-</script>
     <style>
-
-        /* index.html Style update */
-:root {
-    --primary-mint: #10b981; /* Modern Green */
-    --midnight-blue: #1e293b; /* Premium Navy */
-    --soft-gray: #f8fafc;
-    --glass: rgba(255, 255, 255, 0.8);
-}
-
-body {
-    background-color: var(--soft-gray);
-    font-family: 'Plus Jakarta Sans', sans-serif; /* Modern Font */
-}
-
-/* 1. Glassmorphism Navbar */
-.navbar {
-    backdrop-filter: blur(10px);
-    background: rgba(30, 41, 59, 0.9) !important;
-    border-bottom: 1px solid rgba(255,255,255,0.1);
-    padding: 1rem 0;
-}
-
-/* 2. Modern Search Bar */
-.search-container {
-    background: white;
-    border-radius: 100px;
-    padding: 5px 10px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-    transition: 0.3s;
-}
-
-.search-container:focus-within {
-    box-shadow: 0 15px 35px rgba(16, 185, 129, 0.15);
-}
-
-/* 3. Category "Chips" UI */
-.category-pill {
-    padding: 10px 20px;
-    border-radius: 100px;
-    background: white;
-    color: var(--midnight-blue);
-    margin: 5px;
-    display: inline-block;
-    text-decoration: none;
-    font-weight: 600;
-    font-size: 0.85rem;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.03);
-    transition: 0.3s;
-}
-
-.category-pill:hover, .category-pill.active {
-    background: var(--primary-mint);
-    color: white;
-    transform: translateY(-3px);
-}
-
-/* 4. Refined Product Card */
-.product-card {
-    border-radius: 28px;
-    border: none;
-    background: white;
-    padding: 10px;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-
-.product-card:hover {
-    transform: translateY(-12px);
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
-}
-
-.img-container {
-    background-color: #f1f5f9;
-    border-radius: 22px;
-    padding: 30px;
-    overflow: hidden;
-}
-
-.product-card img {
-    transition: 0.5s;
-}
-
-.product-card:hover img {
-    transform: scale(1.1);
-}
-
-/* 5. Soft Buttons */
-.btn-mint {
-    background: var(--primary-mint);
-    color: white;
-    border-radius: 16px;
-    padding: 12px 25px;
-    font-weight: 700;
-    border: none;
-    transition: 0.3s;
-}
-
-.btn-mint:hover {
-    background: #059669;
-    box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);
-}
-
         :root {
-            --primary-color: #00a699; /* Medical Teal */
-            --secondary-color: #004a99; /* Deep Blue */
-            --light-bg: #f4f7f6;
+            --primary-mint: #10b981;
+            --midnight-blue: #1e293b;
+            --soft-gray: #f8fafc;
+            --primary-teal: #00a699;
+            --secondary-color: #004a99;
         }
 
         body {
+            background-color: var(--soft-gray);
             font-family: 'Poppins', sans-serif;
-            background-color: var(--light-bg);
             scroll-behavior: smooth;
         }
 
         /* Navbar Style */
-        /* Premium Navbar Styling */
-.navbar {
-    background: rgba(0, 74, 153, 0.95) !important; /* Deep Blue Glass effect */
-    backdrop-filter: blur(10px);
-    border-bottom: 2px solid rgba(255,255,255,0.1);
-    padding: 12px 0;
-}
-
-.nav-link {
-    color: rgba(255,255,255,0.85) !important;
-    font-weight: 500;
-    font-size: 0.9rem;
-    padding: 8px 15px !important;
-    transition: 0.3s;
-    display: flex;
-    align-items: center;
-    gap: 8px; /* Icon-kum text-kum gap */
-}
-
-.nav-link:hover {
-    color: #fff !important;
-    background: rgba(255,255,255,0.1);
-    border-radius: 12px;
-}
-
-.nav-link i {
-    font-size: 1.1rem;
-    color: #00d2ff; /* Light blue icons */
-}
-
-/* Logout Button Special Style */
-.btn-logout {
-    background: rgba(255, 65, 54, 0.15);
-    color: #ff4136 !important;
-    border: 1px solid rgba(255, 65, 54, 0.3);
-    border-radius: 12px;
-    font-weight: 600;
-}
-
-.btn-logout:hover {
-    background: #ff4136;
-    color: white !important;
-}
-
-/* Search Bar Improvement */
-.search-group {
-    background: white;
-    border-radius: 15px;
-    padding: 2px;
-    overflow: hidden;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-}
-
-.search-input {
-    border: none !important;
-    box-shadow: none !important;
-    padding-left: 15px;
-}
-
-.search-btn {
-    border-radius: 12px !important;
-    background: var(--primary-color) !important;
-    border: none;
-    padding: 5px 20px !important;
-}
-
-        /* Hero Section */
-        .hero-section {
-            background: white;
-            border-radius: 0 0 50px 50px;
-            padding: 60px 0;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-            margin-bottom: 40px;
+        .navbar {
+            background: rgba(30, 41, 59, 0.95) !important;
+            backdrop-filter: blur(10px);
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
         }
 
-        /* Product Card Style */
+        /* Voice Search & Search Box */
+        .search-group {
+            background: white;
+            border-radius: 50px;
+            padding: 5px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .search-input { border: none !important; box-shadow: none !important; padding-left: 20px; }
+        .mic-btn { border: none; background: none; color: #dc3545; padding-right: 15px; }
+
+        /* Carousel & Category Pills */
+        .carousel-item { border-radius: 30px; }
+        .category-pill {
+            padding: 10px 20px;
+            border-radius: 100px;
+            background: white;
+            color: var(--midnight-blue);
+            margin: 5px;
+            display: inline-block;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.85rem;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+            transition: 0.3s;
+        }
+        .category-pill:hover, .category-pill.active { background: var(--primary-mint); color: white; transform: translateY(-3px); }
+
+        /* Product Card */
         .product-card {
-            border: none;
             border-radius: 20px;
+            border: none;
             transition: all 0.3s ease;
+            height: 100%;
             background: white;
             overflow: hidden;
-            height: 100%;
         }
-
-        .product-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-        }
-
-        .card-img-top {
-            height: 160px;
-            object-fit: contain;
-            padding: 15px;
-            background: #fdfdfd;
-        }
-
-        /* Sidebar & Badge */
-        .sidebar-card { border-radius: 15px; border: none; }
-        .list-group-item { border: none; padding: 12px 20px; transition: 0.3s; }
-        .list-group-item:hover { background: #e0f2f1; color: var(--primary-color); }
-        .list-group-item.active { background-color: var(--primary-color) !important; }
+        .product-card:hover { transform: translateY(-10px); box-shadow: 0 15px 35px rgba(0,0,0,0.1); }
+        .card-img-top { height: 160px; object-fit: contain; padding: 20px; background: #fdfdfd; }
         
-        .badge-cat {
-            background-color: #e0f2f1;
-            color: var(--primary-color);
-            border-radius: 50px;
-            padding: 4px 10px;
-            font-size: 0.7rem;
-        }
+        .badge-cat { background-color: #e0f2f1; color: var(--primary-teal); border-radius: 50px; padding: 4px 10px; font-size: 0.7rem; }
 
-        #suggestionBox { z-index: 1050; border-radius: 10px; overflow: hidden; }
+        /* Chatbot Style */
+        #chat-circle { position: fixed; bottom: 30px; right: 30px; background: var(--primary-teal); width: 60px; height: 60px; border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 10px 25px rgba(0,0,0,0.1); z-index: 1000; }
+        #chat-box { position: fixed; bottom: 100px; right: 30px; width: 300px; background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); display: none; z-index: 1000; overflow: hidden; }
+        .chat-header { background: #002b5c; color: white; padding: 15px; font-weight: bold; }
+        .chat-body { height: 300px; padding: 15px; overflow-y: auto; font-size: 0.85rem; }
     </style>
 </head>
 <body>
@@ -278,73 +86,36 @@ body {
 <!-- Navbar -->
 <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
     <div class="container">
-        <!-- Logo -->
-        <a class="navbar-brand fw-bold d-flex align-items-center" href="/">
-            <i class="bi bi-capsule-pill fs-2 text-info me-2"></i>
-            <span>Medi<span class="text-info">kart</span></span>
+        <a class="navbar-brand fw-bold" href="/">
+            <i class="bi bi-capsule-pill fs-2 text-info me-2"></i>Medi<span class="text-info">kart</span>
         </a>
-
-        <!-- Mobile Toggle -->
+<a class="nav-link text-white fw-bold me-3" href="{{ url_for('profile') }}">
+   <i class="bi bi-person-fill"></i> My Dashboard
+</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
 
         <div class="collapse navbar-collapse" id="navbarNav">
-            <!-- Search in Center -->
             <form class="d-flex mx-auto w-50" action="/" method="GET">
                 <div class="input-group search-group">
-                    <span class="input-group-text bg-white border-0"><i class="bi bi-search text-muted"></i></span>
-                    <input class="form-control search-input" type="search" name="q" placeholder="Search medicines...">
-                    <button class="btn btn-primary search-btn" type="submit">Search</button>
+                    <input class="form-control search-input" type="search" id="searchInput" name="q" placeholder="Search medicines..." value="{{ request.args.get('q', '') }}">
+                    <button class="mic-btn" type="button" id="voiceBtn"><i class="bi bi-mic-fill"></i></button>
+                    <button class="btn btn-success rounded-pill px-4" type="submit">Search</button>
                 </div>
             </form>
 
-            <!-- Action Icons -->
             <ul class="navbar-nav ms-auto align-items-center">
                 {% if current_user.is_authenticated %}
-                    
-                    {% if current_user.username == 'admin' %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="/admin">
-                            <i class="bi bi-speedometer2"></i> Admin
-                        </a>
-                    </li>
-                    {% endif %}
-
-                    <li class="nav-item">
-                        <a class="nav-link" href="/profile">
-                            <i class="bi bi-person-circle"></i> Profile
-                        </a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link" href="/my_orders">
-                            <i class="bi bi-box-seam"></i> Orders
-                        </a>
-                    </li>
-
-                    <li class="nav-item ms-lg-2">
-                        <a class="nav-link btn-logout" href="/logout">
-                            <i class="bi bi-power"></i> Logout
-                        </a>
-                    </li>
-
+                    <li class="nav-item"><a class="nav-link" href="/my_orders">Orders</a></li>
+                    <li class="nav-item ms-2"><a class="btn btn-outline-light btn-sm rounded-pill" href="/logout">Logout</a></li>
                 {% else %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="/login"><i class="bi bi-box-arrow-in-right"></i> Login</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="btn btn-info btn-sm rounded-pill px-3 ms-2 fw-bold" href="/register">Register</a>
-                    </li>
+                    <li class="nav-item"><a class="nav-link" href="/login">Login</a></li>
+                    <li class="nav-item ms-2"><a class="btn btn-info btn-sm rounded-pill px-3" href="/register">Register</a></li>
                 {% endif %}
-
-                <!-- Cart Icon -->
-                <li class="nav-item ms-lg-3">
-                    <a class="btn btn-warning rounded-pill d-flex align-items-center px-3 shadow-sm" href="/cart">
-                        <i class="bi bi-cart3 fs-5 me-1"></i>
-                        <span class="badge bg-dark rounded-pill" style="font-size: 0.7rem;">
-                            {{ session['cart']|length if session['cart'] else 0 }}
-                        </span>
+                <li class="nav-item ms-3">
+                    <a class="btn btn-warning rounded-pill px-3 shadow-sm" href="/cart">
+                        <i class="bi bi-cart3"></i> {{ session['cart']|length if session['cart'] else 0 }}
                     </a>
                 </li>
             </ul>
@@ -352,135 +123,89 @@ body {
     </div>
 </nav>
 
-<!-- Hero Section (Only shown on home) -->
+<!-- Hero Carousel -->
 {% if not request.args.get('q') and not request.args.get('cat') %}
-<header class="hero-section">
-    <div class="container">
-        <div class="row align-items-center">
-            <div class="col-lg-7 text-center text-lg-start">
-                <h1 class="display-4 fw-bold text-dark">Welcome to <span style="color: var(--primary-color);">Medi kart</span></h1>
-                <p class="lead text-muted mb-4">Your health is our priority. Get 100% genuine medicines delivered safely to your doorstep.</p>
-                <div class="d-flex gap-3 justify-content-center justify-content-lg-start">
-                    <a href="#products-start" class="btn btn-primary btn-lg rounded-pill px-5 shadow">Shop Now</a>
-                    <button class="btn btn-outline-secondary btn-lg rounded-pill px-4" data-bs-toggle="modal" data-bs-target="#aiModal">Ask AI Assistant</button>
+<div class="container mt-4">
+    <div id="heroCarousel" class="carousel slide shadow-sm mb-5 rounded-5 overflow-hidden" data-bs-ride="carousel">
+        <div class="carousel-inner">
+            <div class="carousel-item active" style="background: linear-gradient(135deg, #002b5c, #00a699); height: 300px;">
+                <div class="container h-100 d-flex align-items-center">
+                    <div class="text-white col-md-7 ps-5">
+                        <h1 class="display-5 fw-bold">Your Trusted Health Partner</h1>
+                        <p class="lead">Genuine medicines delivered in 2 hours.</p>
+                        <a href="#products-start" class="btn btn-warning rounded-pill px-4 fw-bold">Shop Now</a>
+                    </div>
                 </div>
             </div>
-            <div class="col-lg-5 text-center mt-5 mt-lg-0">
-                <img src="https://static.vecteezy.com/system/resources/thumbnails/017/347/820/small/creative-medical-pharmacy-logo-design-design-concept-free-vector.jpg" 
-                     class="img-fluid rounded-circle shadow-lg" alt="Medi Logo" style="max-width: 350px; border: 10px solid white;">
+            <div class="carousel-item" style="background: linear-gradient(135deg, #1d4ed8, #60a5fa); height: 300px;">
+                <div class="container h-100 d-flex align-items-center text-white ps-5">
+                    <div>
+                        <span class="badge bg-warning text-dark mb-2">LIMITED OFFER</span>
+                        <h1 class="display-5 fw-bold">Flat 20% OFF!</h1>
+                        <p class="lead">On first order. Code: <b>FIRST20</b></p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-</header>
+</div>
 {% endif %}
 
 <main class="container py-4" id="products-start">
-    <!-- Flash Messages -->
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            {% for category, message in messages %}
-                <div class="alert alert-{{ category }} alert-dismissible fade show rounded-pill px-4 shadow-sm" role="alert">
-                    {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
-
     <div class="row">
-        {% if 'Success' in message %}
-<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
-<script>
-    confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
-</script>
-{% endif %}
-        <!-- Sidebar: Categories -->
+        <!-- Sidebar -->
         <div class="col-md-3">
-            <div class="card sidebar-card shadow-sm mb-4">
-                <div class="card-header bg-white fw-bold py-3"><i class="bi bi-grid-fill me-2 text-primary"></i> Categories</div>
-                <div class="list-group list-group-flush">
-                    <a href="/" class="list-group-item list-group-item-action {{ 'active' if not request.args.get('cat') }}">All Products</a>
-                    {% for cat in categories %}
-                    <a href="/?cat={{ cat.id }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center {{ 'active' if request.args.get('cat') == cat.id|string }}">
-                        {{ cat.name }}
-                        <span class="badge bg-light text-dark rounded-pill">{{ cat.products|length }}</span>
-                    </a>
-                    {% endfor %}
-                    <!-- index.html - Inside Container -->
-<div class="container mt-4 mb-5 overflow-auto text-nowrap py-2 no-scrollbar">
-    <a href="/" class="category-pill shadow-sm">⚡ All Medicines</a>
-    {% for cat in categories %}
-    <a href="/?cat={{ cat.id }}" class="category-pill shadow-sm">
-        {{ cat.name }}
-    </a>
-    {% endfor %}
-</div>
-                </div>
+            <!-- BMI Calculator -->
+            <div class="card border-0 shadow-sm p-3 bg-white rounded-4 mb-4">
+                <h6 class="fw-bold text-primary"><i class="bi bi-heart-pulse"></i> BMI Calculator</h6>
+                <input type="number" id="weight" class="form-control form-control-sm mb-2" placeholder="Weight (kg)">
+                <input type="number" id="height" class="form-control form-control-sm mb-2" placeholder="Height (cm)">
+                <button class="btn btn-primary btn-sm w-100 rounded-pill" onclick="calcBMI()">Calculate</button>
+                <div id="bmiResult" class="mt-2 small fw-bold text-center"></div>
             </div>
 
-            <!-- AI Symptom Checker Card -->
-            <div class="card bg-primary text-white p-3 border-0 shadow-sm rounded-4">
-                <h6>💊 Symptom Checker</h6>
-                <p class="small opacity-75">Tell us your symptoms, AI will suggest medicines.</p>
-                <form action="/ai_assistant" method="POST">
-                    <input type="text" name="symptom" class="form-control form-control-sm mb-2 rounded-pill" placeholder="e.g. Fever, Cough">
-                    <button class="btn btn-warning btn-sm w-100 rounded-pill fw-bold">Suggest</button>
-                </form>
-
-             <div class="card mt-4 border-0 shadow-sm p-3 bg-white rounded-4">
-    <h6 class="fw-bold"><i class="bi bi-heart-pulse text-danger"></i> BMI Calculator</h6>
-    <input type="number" id="weight" class="form-control form-control-sm mb-2" placeholder="Weight (kg)">
-    <input type="number" id="height" class="form-control form-control-sm mb-2" placeholder="Height (cm)">
-    <button class="btn btn-primary btn-sm w-100" onclick="calcBMI()">Calculate</button>
-    <div id="bmiResult" class="mt-2 small fw-bold text-center text-primary"></div>
-</div>
-
-<script>
-function calcBMI() {
-    let w = document.getElementById('weight').value;
-    let h = document.getElementById('height').value / 100;
-    let bmi = (w / (h * h)).toFixed(1);
-    let msg = bmi < 18.5 ? "Underweight" : (bmi < 25 ? "Normal" : "Overweight");
-    document.getElementById('bmiResult').innerHTML = `BMI: ${bmi} (${msg})`;
-}
-</script>   
+            <!-- Categories -->
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+                <div class="card-header bg-white fw-bold">Categories</div>
+                <div class="list-group list-group-flush">
+                    <a href="/" class="list-group-item list-group-item-action">All Products</a>
+                    {% for cat in categories %}
+                    <a href="/?cat={{ cat.id }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                        {{ cat.name }} <span class="badge bg-light text-dark rounded-pill">{{ cat.products|length }}</span>
+                    </a>
+                    {% endfor %}
+                </div>
             </div>
         </div>
 
         <!-- Product Grid -->
         <div class="col-md-9">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h4 class="fw-bold mb-0">Our Products</h4>
-                {% if request.args.get('q') or request.args.get('cat') %}
-                    <a href="/" class="btn btn-sm btn-outline-secondary rounded-pill">Clear Filter</a>
-                {% endif %}
-            </div>
-
-            {% if suggestions %}
-            <div class="alert alert-success rounded-4 shadow-sm mb-4">
-                <h6 class="fw-bold"><i class="bi bi-robot me-2"></i> AI Recommendations:</h6>
-                <div class="row mt-2">
-                    {% for s in suggestions %}
-                    <div class="col-md-6 small">{{ s.name }} - ₹{{ s.price }} <a href="/add_to_cart/{{s.id}}" class="fw-bold">Add</a></div>
-                    {% endfor %}
-                </div>
-            </div>
-            {% endif %}
-
+            <h4 class="fw-bold mb-4">Available Medicines</h4>
             <div class="row">
                 {% if products %}
                     {% for product in products %}
                     <div class="col-md-4 mb-4">
-                        <div class="card product-card shadow-sm">
+                        <div class="card product-card shadow-sm position-relative">
+                            <!-- Best Seller Logic (MUST BE INSIDE LOOP) -->
+                            {% if product.price > 500 %}
+                            <span class="position-absolute top-0 end-0 bg-warning text-dark badge rounded-pill m-2">Best Seller</span>
+                            {% endif %}
+
                             <img src="{{ product.image_url }}" class="card-img-top" alt="{{ product.name }}">
                             <div class="card-body d-flex flex-column">
                                 <span class="badge badge-cat mb-2">{{ product.category.name }}</span>
                                 <h6 class="card-title fw-bold text-dark mb-1">{{ product.name }}</h6>
                                 <p class="card-text text-muted small mb-3 flex-grow-1">{{ product.description }}</p>
+                                
+                                <!-- Stock Alert -->
+                                {% if product.stock_quantity < 20 %}
+                                <p class="text-danger small fw-bold mb-2"><i class="bi bi-clock"></i> Low Stock!</p>
+                                {% endif %}
+
                                 <div class="d-flex justify-content-between align-items-center mt-auto">
                                     <span class="h5 fw-bold text-primary mb-0">₹{{ product.price }}</span>
-                                    <a href="/add_to_cart/{{product.id}}" class="btn btn-success btn-sm shadow-sm px-3 rounded-pill">
-                                        <i class="bi bi-plus-lg me-1"></i>Add
+                                    <a href="/add_to_cart/{{product.id}}" class="btn btn-success btn-sm rounded-pill px-3 shadow-sm">
+                                        Add +
                                     </a>
                                 </div>
                             </div>
@@ -488,9 +213,9 @@ function calcBMI() {
                     </div>
                     {% endfor %}
                 {% else %}
-                    <div class="col-12 text-center py-5 mt-5">
-                        <i class="bi bi-search text-muted display-1"></i>
-                        <p class="h5 text-muted mt-3">No medicines found. Try another search!</p>
+                    <div class="col-12 text-center py-5">
+                        <i class="bi bi-search display-1 text-muted"></i>
+                        <p class="mt-3">No medicines found.</p>
                     </div>
                 {% endif %}
             </div>
@@ -498,41 +223,55 @@ function calcBMI() {
     </div>
 </main>
 
-<footer class="bg-dark text-white text-center py-4 mt-5">
-    <div class="container">
-        <p class="mb-0 small opacity-75">&copy; 2026 Medi kart Online Pharmacy. Professional Healthcare Solutions.</p>
-    </div>
-</footer>
+<!-- Chatbot AI -->
+<div id="chat-circle" onclick="document.getElementById('chat-box').style.display='block'"><i class="bi bi-chat-dots-fill fs-3"></i></div>
+<div id="chat-box">
+    <div class="chat-header d-flex justify-content-between">Medi kart AI <span onclick="this.parentElement.parentElement.style.display='none'" style="cursor:pointer">×</span></div>
+    <div class="chat-body" id="chatBody">Hi! Type 'fever' or 'pain' to get medicine help.</div>
+    <div class="p-2 border-top"><input type="text" id="chatInput" class="form-control form-control-sm" placeholder="Type here..." onkeypress="if(event.key==='Enter') sendMessage()"></div>
+</div>
 
-<!-- JavaScript -->
+<!-- Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
 <script>
-    // AI Search Suggestions
-    const searchInput = document.getElementById('searchInput');
-    const suggestionBox = document.getElementById('suggestionBox');
+    // BMI Logic
+    function calcBMI() {
+        let w = document.getElementById('weight').value;
+        let h = document.getElementById('height').value / 100;
+        if(w && h) {
+            let bmi = (w / (h * h)).toFixed(1);
+            let msg = bmi < 18.5 ? "Underweight" : (bmi < 25 ? "Normal" : "Overweight");
+            document.getElementById('bmiResult').innerHTML = `BMI: ${bmi} (${msg})`;
+        }
+    }
 
-    searchInput.addEventListener('input', function() {
-        let q = this.value;
-        if(q.length < 2) { suggestionBox.innerHTML = ''; return; }
+    // Chatbot Logic
+    function sendMessage() {
+        let input = document.getElementById('chatInput');
+        let body = document.getElementById('chatBody');
+        let text = input.value.toLowerCase();
+        body.innerHTML += `<div class="text-end mt-2"><b>You:</b> ${text}</div>`;
+        let reply = "Try typing 'fever', 'pain' or 'skincare'.";
+        if(text.includes('fever')) reply = "For fever, <b>Dolo 650</b> is highly recommended.";
+        if(text.includes('pain')) reply = "For body pain, you can use <b>Saridon</b>.";
+        if(text.includes('skincare')) reply = "Check out our <b>Neutrogena</b> products.";
+        setTimeout(() => {
+            body.innerHTML += `<div class="text-start mt-2 text-primary"><b>AI:</b> ${reply}</div>`;
+            body.scrollTop = body.scrollHeight;
+        }, 500);
+        input.value = '';
+    }
 
-        fetch(`/api/suggestions?q=${q}`)
-            .then(res => res.json())
-            .then(data => {
-                suggestionBox.innerHTML = '';
-                data.forEach(item => {
-                    const a = document.createElement('a');
-                    a.href = `/?q=${item.name}`;
-                    a.className = 'list-group-item list-group-item-action small py-2';
-                    a.innerHTML = `<i class="bi bi-search me-2 text-muted"></i> ${item.name} <small class="text-muted float-end">${item.cat}</small>`;
-                    suggestionBox.appendChild(a);
-                });
-            });
-    });
-
-    document.addEventListener('click', function(e) {
-        if(!searchInput.contains(e.target)) suggestionBox.innerHTML = '';
-    });
+    // Voice Search
+    const voiceBtn = document.getElementById('voiceBtn');
+    if ('webkitSpeechRecognition' in window) {
+        const recognition = new webkitSpeechRecognition();
+        recognition.onresult = (e) => {
+            document.getElementById('searchInput').value = e.results[0][0].transcript;
+            document.forms[0].submit();
+        };
+        voiceBtn.onclick = () => recognition.start();
+    } else { voiceBtn.style.display = 'none'; }
 </script>
 
 </body>
