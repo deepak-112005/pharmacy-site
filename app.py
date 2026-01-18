@@ -8,6 +8,7 @@ from PIL import Image
 from datetime import datetime, timedelta
 import easyocr
 import re
+import random 
 import os
 
 # ---------------- APP CONFIG ----------------
@@ -40,9 +41,20 @@ class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(50), unique=True, nullable=False)
     email = db.Column(db.String(100), unique=True, nullable=False)
+    phone = db.Column(db.String(20), nullable=False)
     password = db.Column(db.String(200), nullable=False)
     address = db.Column(db.String(500)) 
-    phone = db.Column(db.String(20))
+    
+    # Auto-Location & OTP Info
+    country = db.Column(db.String(100))
+    state = db.Column(db.String(100))
+    city = db.Column(db.String(100))
+    lat = db.Column(db.String(50))
+    lng = db.Column(db.String(50))
+    is_active = db.Column(db.Boolean, default=False) 
+    otp = db.Column(db.String(6))
+    otp_expiry = db.Column(db.DateTime)
+    reg_date = db.Column(db.DateTime, default=datetime.utcnow)
 
 class Category(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -60,13 +72,6 @@ class Product(db.Model):
     image_url = db.Column(db.String(200))
     search_tags = db.Column(db.String(200))
 
-class MedicalRegistry(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    license_number = db.Column(db.String(50), unique=True)
-    doctor_name = db.Column(db.String(100))
-    expiry_date = db.Column(db.Date)
-    status = db.Column(db.String(20)) 
-
 class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
@@ -77,7 +82,6 @@ class Order(db.Model):
     payment_method = db.Column(db.String(50))
     total_amount = db.Column(db.Float)
     verification_status = db.Column(db.String(50), default='Pending')
-    flag_reason = db.Column(db.String(200))
     doctor_license_detected = db.Column(db.String(50))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
@@ -103,8 +107,6 @@ def seed_database():
     for item in REAL_PRODUCTS:
         if not Product.query.filter_by(sku=item['sku']).first():
             db.session.add(Product(sku=item['sku'], name=item['name'], price=item['price'], category_id=cat_map[item['cat']], description=item['desc'], search_tags=item['tags'], image_url="https://via.placeholder.com/150"))
-    if not MedicalRegistry.query.filter_by(license_number="REG-12345").first():
-        db.session.add(MedicalRegistry(license_number="REG-12345", doctor_name="Dr. Arun", expiry_date=datetime.now().date()+timedelta(days=365), status="Active"))
     db.session.commit()
 
 with app.app_context():
@@ -123,63 +125,106 @@ def index():
     else: products = Product.query.all()
     return render_template('index.html', products=products, categories=categories)
 
-@app.route('/api/suggestions')
-def get_suggestions():
-    q = request.args.get('q', '').lower()
-    if len(q) < 2: return jsonify([])
-    results = Product.query.filter((Product.name.ilike(f'%{q}%')) | (Product.search_tags.ilike(f'%{q}%'))).limit(5).all()
-    return jsonify([{"id": p.id, "name": p.name, "cat": p.category.name} for p in results])
-
-@app.route('/profile', methods=['GET', 'POST'])
-@login_required
-def profile():
-    if request.method == 'POST':
-        current_user.address = request.form.get('address')
-        current_user.phone = request.form.get('phone')
-        db.session.commit()
-        flash('Profile updated successfully!', 'success')
-    order_count = Order.query.filter_by(user_id=current_user.id).count()
-    return render_template('profile.html', user=current_user, order_count=order_count)
-
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        uname, email, pwd = request.form['username'], request.form['email'], request.form['password']
-        if not User.query.filter((User.username == uname) | (User.email == email)).first():
-            db.session.add(User(username=uname, email=email, password=generate_password_hash(pwd)))
-            db.session.commit()
-            return redirect(url_for('login'))
+        uname, uemail, uphone, pwd = request.form.get('username'), request.form.get('email'), request.form.get('phone'), request.form.get('password')
+        lat, lng = request.form.get('lat'), request.form.get('lng')
+        
+        if not all([uname, uemail, uphone, pwd]):
+            flash("All fields are required!", "danger")
+            return redirect(url_for('register'))
+
+        if User.query.filter((User.username == uname) | (User.email == uemail)).first():
+            flash("User already exists!", "danger")
+            return redirect(url_for('register'))
+
+        otp_code = str(random.randint(100000, 999999))
+        new_user = User(
+            username=uname, email=uemail, phone=uphone,
+            password=generate_password_hash(pwd),
+            lat=lat, lng=lng, otp=otp_code,
+            otp_expiry=datetime.now() + timedelta(minutes=5)
+        )
+        db.session.add(new_user); db.session.commit()
+        
+        print(f"DEBUG: OTP for {uemail} is {otp_code}") # Inga OTP terminal-la thiriyum
+        session['verify_user_id'] = new_user.id
+        flash("OTP generated! Please verify to activate account.", "info")
+        return redirect(url_for('verify_otp'))
     return render_template('register.html')
+
+@app.route('/verify_otp', methods=['GET', 'POST'])
+def verify_otp():
+    user_id = session.get('verify_user_id')
+    if not user_id: return redirect(url_for('register'))
+    user = User.query.get(user_id)
+    if request.method == 'POST':
+        if user.otp == request.form.get('otp') and datetime.now() < user.otp_expiry:
+            user.is_active = True
+            db.session.commit()
+            flash("Account Verified!", "success")
+            return redirect(url_for('login'))
+        flash("Invalid OTP!", "danger")
+    return render_template('verify_otp.html')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         user = User.query.filter_by(username=request.form['username']).first()
         if user and check_password_hash(user.password, request.form['password']):
+            if not user.is_active and user.username != 'admin':
+                flash("Account not verified! Check OTP.", "warning")
+                return redirect(url_for('verify_otp'))
             login_user(user)
             return redirect(url_for('index'))
         flash("Invalid Credentials", "danger")
     return render_template('login.html')
 
-@app.route('/logout')
+@app.route('/profile', methods=['GET', 'POST'])
 @login_required
-def logout():
-    logout_user()
-    return redirect(url_for('index'))
+def profile():
+    if request.method == 'POST':
+        current_user.phone = request.form.get('phone')
+        current_user.address = request.form.get('address')
+        db.session.commit()
+        flash('Updated!', 'success')
+    return render_template('profile.html', order_count=Order.query.filter_by(user_id=current_user.id).count())
+
+@app.route('/admin')
+@login_required
+def admin_dashboard():
+    if current_user.username != 'admin': return redirect(url_for('index'))
+    
+    # Stats
+    total_rev = db.session.query(db.func.sum(Order.total_amount)).scalar() or 0
+    low_stock = Product.query.filter(Product.stock_quantity < 10).count()
+    
+    # Chart Data
+    med_count = Product.query.join(Category).filter(Category.name == 'MEDICINES').count()
+    cos_count = Product.query.join(Category).filter(Category.name == 'COSMETICS & PERSONAL CARE').count()
+    inst_count = Product.query.join(Category).filter(Category.name == 'MEDICAL INSTRUMENTS').count()
+
+    return render_template('admin.html', 
+        p_count=Product.query.count(), o_count=Order.query.count(),
+        total_rev=total_rev, products=Product.query.all(), 
+        users=User.query.filter(User.username != 'admin').all(),
+        categories=Category.query.all(), low_stock_count=low_stock,
+        med_count=med_count, cos_count=cos_count, inst_count=inst_count
+    )
+
+@app.route('/add_to_cart/<int:product_id>')
+def add_to_cart(product_id):
+    session.setdefault('cart', [])
+    if product_id not in session['cart']:
+        session['cart'].append(product_id); session.modified = True
+    return redirect(url_for('cart'))
 
 @app.route('/cart')
 def cart():
     cart_ids = session.get('cart', [])
     products = Product.query.filter(Product.id.in_(cart_ids)).all()
     return render_template('cart.html', products=products, total=sum(p.price for p in products))
-
-@app.route('/add_to_cart/<int:product_id>')
-def add_to_cart(product_id):
-    session.setdefault('cart', [])
-    if product_id not in session['cart']:
-        session['cart'].append(product_id)
-        session.modified = True
-    return redirect(url_for('cart'))
 
 @app.route('/checkout', methods=['GET', 'POST'])
 @login_required
@@ -188,100 +233,27 @@ def checkout():
     if not cart_ids: return redirect(url_for('index'))
     products = Product.query.filter(Product.id.in_(cart_ids)).all()
     total = sum(p.price for p in products)
-     # Medicine names-ah string-ah mathuroam
-    med_names = ", ".join([p.name for p in products])
+
     if request.method == 'POST':
-        file = request.files.get('prescription')
-        filename = None
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-        order = Order(user_id=current_user.id, full_name=request.form['name'], address=request.form['address'], 
-                      phone=request.form['phone'], prescription_file=filename, payment_method=request.form['payment'],
-                      total_amount=total, verification_status="Approved")
-        db.session.add(order); db.session.commit(); session.pop('cart', None)
-        flash("Order placed successfully!", "success")
+        order = Order(
+            user_id=current_user.id, full_name=request.form['name'],
+            address=request.form['address'], phone=request.form['phone'],
+            total_amount=total
+        )
+        db.session.add(order); db.session.commit()
+        session.pop('cart', None)
+        flash("Order Placed!", "success")
         return redirect(url_for('my_orders'))
     return render_template('checkout.html', products=products, total=total)
 
 @app.route('/my_orders')
 @login_required
 def my_orders():
-    orders = Order.query.filter_by(user_id=current_user.id).all()
-    return render_template('orders.html', orders=orders)
+    return render_template('orders.html', orders=Order.query.filter_by(user_id=current_user.id).all())
 
-@app.route('/admin')
-@login_required
-def admin_dashboard():
-    if current_user.username != 'admin': return redirect(url_for('index'))
-    # Statistics
-    p_count = Product.query.count()
-    o_count = Order.query.count()
-    total_rev = db.session.query(db.func.sum(Order.total_amount)).scalar() or 0
-    # Category Data for Charts
-    med_count = Product.query.join(Category).filter(Category.name == 'MEDICINES').count()
-    cos_count = Product.query.join(Category).filter(Category.name == 'COSMETICS & PERSONAL CARE').count()
-    inst_count = Product.query.join(Category).filter(Category.name == 'MEDICAL INSTRUMENTS').count()
-    
-    return render_template('admin.html', 
-                           products=Product.query.all(), orders=Order.query.all(),
-                           categories=Category.query.all(), p_count=p_count, o_count=o_count, 
-                           total_rev=total_rev, med_count=med_count, 
-                           cos_count=cos_count, inst_count=inst_count)
+@app.route('/logout')
+def logout():
+    logout_user(); return redirect(url_for('index'))
 
-# Advanced: Order Categories
-    pending_orders = Order.query.filter_by(verification_status='Pending').all()
-    verified_orders = Order.query.filter_by(verification_status='Approved').all()
-    
-    # Advanced: User Management
-    users = User.query.filter(User.username != 'admin').all()
-    
-    products = Product.query.all()
-    categories = Category.query.all()
-    
-    return render_template('admin.html', 
-                           p_count=p_count, o_count=o_count, 
-                           total_rev=total_rev, products=products, 
-                           pending_orders=pending_orders, verified_orders=verified_orders,
-                           users=users, categories=categories)
-
-@app.route('/download_invoice/<int:order_id>')
-@login_required
-def download_invoice(order_id):
-    order = Order.query.get_or_404(order_id)
-    pdf = FPDF(); pdf.add_page(); pdf.set_font("Arial", 'B', 16)
-    pdf.cell(190, 10, "INVOICE - Medi kart", ln=True, align='C')
-    pdf.set_font("Arial", '', 12); pdf.cell(190, 10, f"Customer: {order.full_name} | Total: Rs.{order.total_amount}", ln=True)
-    res = make_response(pdf.output(dest='S').encode('latin-1'))
-    res.headers['Content-Disposition'] = f'attachment; filename=invoice_{order.id}.pdf'
-    res.headers['Content-Type'] = 'application/pdf'
-    return res
-
-# --- Cancel Order Route ---
-@app.route('/cancel_order/<int:id>')
-@login_required
-def cancel_order(id):
-    order = Order.query.get(id)
-    if order and order.user_id == current_user.id:
-        db.session.delete(order)
-        db.session.commit()
-        flash("Order cancelled successfully!", "info")
-    return redirect(url_for('my_orders'))
-
-@app.route('/admin/update_status/<int:order_id>/<string:status>')
-@login_required
-def update_order_status(order_id, status):
-    # Admin check
-    if current_user.username != 'admin':
-        return redirect(url_for('index'))
-    
-    order = Order.query.get_or_404(order_id)
-    order.verification_status = status  # Inga 'Packing' illa 'Delivered' nu mathuroam
-    db.session.commit()
-    
-    flash(f"Order #MK-{order_id} status updated to {status}!", "success")
-    return redirect(url_for('admin_dashboard'))    
-
-# --- KADAISI-LA THAAN ITHU IRUKANUM ---
 if __name__ == '__main__':
     app.run(debug=True)
