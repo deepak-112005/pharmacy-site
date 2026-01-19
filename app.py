@@ -264,28 +264,36 @@ def register():
     return render_template('register.html')
 
 
-
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         user = User.query.filter_by(username=request.form['username']).first()
+        
         if user and check_password_hash(user.password, request.form['password']):
-            if not user.is_active and user.username != 'admin':
-                flash("Account not verified! Check OTP.", "warning")
+            # CHECK: Account active-ah?
+            if not user.is_active:
+                # 1. Puthu OTP generate pannuvom
+                otp_code = str(random.randint(100000, 999999))
+                user.otp = otp_code
+                db.session.commit()
+                
+                # 2. OTP email anupuvom
+                send_otp_email(user.email, otp_code)
+                
+                # 3. User ID-ah session-la vachukittu verify page-ku anupuvom
+                session['verify_user_id'] = user.id
+                flash("Account not verified! New OTP sent to your email.", "warning")
                 return redirect(url_for('verify_otp'))
-            login_user(user)
-            return redirect(url_for('index'))
-
-            otp = str(random.randint(100000, 999999))
-            session['temp_user'] = {'id': user.id, 'type': 'login', 'email': user.email}
-            session['otp'] = otp
             
-            send_otp_email(user.email, otp)
-            flash('Login OTP sent to your registered email!', 'info')
-            return redirect(url_for('verify_otp'))
+            # Normal Login
+            login_user(user)
+            flash("Logged in successfully!", "success")
+            return redirect(url_for('index'))
         else:
             flash('Invalid username or password', 'danger')
+            
     return render_template('login.html')
+
 
 @app.route('/profile', methods=['GET', 'POST'])
 @login_required
@@ -435,37 +443,31 @@ def clear_cart():
 
 @app.route('/verify-otp', methods=['GET', 'POST'])
 def verify_otp():
-    if 'otp' not in session:
+    # Session-la user id irukannu pakkutom
+    user_id = session.get('verify_user_id')
+    
+    if not user_id:
+        flash("Session expired! Please login again.", "danger")
         return redirect(url_for('login'))
 
-    if request.method == 'POST':
-        user_otp = request.form.get('otp')
-        
-        if user_otp == session.get('otp'):
-            temp_data = session.get('temp_user')
-            
-            if temp_data['type'] == 'register':
-                # Create user in DB
-                new_user = User(username=temp_data['username'], 
-                                email=temp_data['email'], 
-                                password=temp_data['password'])
-                db.session.add(new_user)
-                db.session.commit()
-                flash('Registration Successful!', 'success')
-                login_user(new_user)
-            
-            elif temp_data['type'] == 'login':
-                # Login user
-                user = User.query.get(temp_data['id'])
-                login_user(user)
-                flash('Logged in successfully!', 'success')
+    user = User.query.get(user_id)
 
-            # Clear session
-            session.pop('otp', None)
-            session.pop('temp_user', None)
+    if request.method == 'POST':
+        user_otp = request.form.get('otp') # Form-la irunthu vara OTP
+        
+        # Check: Database OTP == User entered OTP
+        if user_otp == user.otp:
+            user.is_active = True # Account-ah active akkiytom!
+            user.otp = None       # OTP-ah clear paniduvom
+            db.session.commit()
+            
+            login_user(user)      # Activate aanathum automatic-ah login panniduvom
+            session.pop('verify_user_id', None)
+            
+            flash('Account activated successfully! Welcome to Medi kart.', 'success')
             return redirect(url_for('index'))
         else:
-            flash('Invalid OTP! Try again.', 'danger')
+            flash('Invalid OTP! Please check your email and try again.', 'danger')
 
     return render_template('verify_otp.html')
 if __name__ == '__main__':
