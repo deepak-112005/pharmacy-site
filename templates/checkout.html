@@ -171,13 +171,7 @@
                                 <span class="fw-bold">Cash on Delivery</span>
                             </label>
                         </div>
-                        <div class="col-md-6">
-                            <input type="radio" class="btn-check" name="payment" id="online" value="Online">
-                            <label class="payment-option text-center" for="online">
-                                <i class="bi bi-credit-card display-6 d-block mb-2 text-primary"></i>
-                                <span class="fw-bold">Online Payment</span>
-                            </label>
-                        </div>
+                        
                     </div>
                 </div>
 
@@ -186,7 +180,35 @@
                 </button>
             </form>
         </div>
-
+<div class="card p-4 mb-4">
+    <h5 class="fw-bold mb-4">Select Payment Method</h5>
+    <div class="row g-3">
+        <!-- UPI Option -->
+        <div class="col-md-4">
+            <input type="radio" class="btn-check" name="payment" id="upi" value="UPI">
+            <label class="payment-option text-center" for="upi">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/e/e1/UPI-Logo-vector.svg" height="30" class="mb-2 d-block mx-auto">
+                <span class="fw-bold">UPI / PhonePe</span>
+            </label>
+        </div>
+        <!-- GPay Option -->
+        <div class="col-md-4">
+            <input type="radio" class="btn-check" name="payment" id="gpay" value="GPay">
+            <label class="payment-option text-center" for="gpay">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/c/c7/Google_Pay_Logo.svg" height="30" class="mb-2 d-block mx-auto">
+                <span class="fw-bold">Google Pay</span>
+            </label>
+        </div>
+        <!-- COD Option -->
+        <div class="col-md-4">
+            <input type="radio" class="btn-check" name="payment" id="cod" value="COD" checked>
+            <label class="payment-option text-center" for="cod">
+                <i class="bi bi-cash fs-3 d-block text-success"></i>
+                <span class="fw-bold">Cash on Delivery</span>
+            </label>
+        </div>
+    </div>
+</div>
         <!-- Right Side: Order Summary -->
         <div class="col-lg-4">
             <div class="card order-summary p-4 shadow">
