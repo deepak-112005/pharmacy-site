@@ -93,12 +93,10 @@ class Order(db.Model):
     status = db.Column(db.String(50), default='Processing')
     prescription_file = db.Column(db.String(200))
     verification_status = db.Column(db.String(50), default='Pending')
-<<<<<<< HEAD
-=======
+
     doctor_license_detected = db.Column(db.String(50))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
->>>>>>> 2a321904245db37279ca89faf18e5b0a873a8079
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
@@ -172,7 +170,6 @@ def index():
     else: products = Product.query.all()
     return render_template('index.html', products=products, categories=categories)
 
-<<<<<<< HEAD
 @app.route('/checkout', methods=['GET', 'POST'])
 @login_required
 def checkout():
@@ -233,57 +230,10 @@ def send_otp_email(email, otp):
     except Exception as e:
         print(f"Mail Error: {e}")
         return False
-@app.route('/admin')
-@login_required
-def admin_dashboard():
-    if current_user.username != 'admin': return redirect(url_for('index'))
-    p_count = Product.query.count()
-    o_count = Order.query.count()
-    total_rev = db.session.query(db.func.sum(Order.total_amount)).scalar() or 0
-    
-    med_count = Product.query.join(Category).filter(Category.name == 'MEDICINES').count()
-    cos_count = Product.query.join(Category).filter(Category.name == 'COSMETICS & PERSONAL CARE').count()
-    inst_count = Product.query.join(Category).filter(Category.name == 'MEDICAL INSTRUMENTS').count()
-    
-    return render_template('admin.html', products=Product.query.all(), orders=Order.query.all(),
-                           categories=Category.query.all(), p_count=p_count, o_count=o_count, 
-                           total_rev=total_rev, med_count=med_count, cos_count=cos_count, inst_count=inst_count)
+
 
 # (Register, Login, Logout, Profile, Cart routes remain as before)
-@app.route('/register', methods=['GET', 'POST'])
-def register():
-    if request.method == 'POST':
-        username = request.form['username']
-        email = request.form['email']
-        password = request.form['password']
-
-        # 1. DATABASE-LA CHECK PANROM (Ithu thaan error-ah thadukkum)
-        existing_user = User.query.filter((User.email == email) | (User.username == username)).first()
-        
-        if existing_user:
-            if existing_user.email == email:
-                flash('Intha Email already register aagi iruku! Vera email use pannunga.', 'danger')
-            else:
-                flash('Intha Username already edukapatu vittathu!', 'danger')
-            return redirect(url_for('register'))
-
-        # Details-ah session-la temporary-ah save panrom
-        otp = str(random.randint(100000, 999999))
-        session['temp_user'] = {
-            'username': request.form['username'],
-            'email': email,
-            'password': generate_password_hash(request.form['password']),
-            'type': 'register'
-        }
-        session['otp'] = otp
-        
-        if send_otp_email(email, otp):
-            flash('OTP sent to your email!', 'info')
-            return redirect(url_for('verify_otp'))
-        else:
-            flash('Error sending OTP. Check mail settings.', 'danger')
             
-=======
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
@@ -311,22 +261,9 @@ def register():
         session['verify_user_id'] = new_user.id
         flash("OTP generated! Please verify to activate account.", "info")
         return redirect(url_for('verify_otp'))
->>>>>>> 2a321904245db37279ca89faf18e5b0a873a8079
     return render_template('register.html')
 
-@app.route('/verify_otp', methods=['GET', 'POST'])
-def verify_otp():
-    user_id = session.get('verify_user_id')
-    if not user_id: return redirect(url_for('register'))
-    user = User.query.get(user_id)
-    if request.method == 'POST':
-        if user.otp == request.form.get('otp') and datetime.now() < user.otp_expiry:
-            user.is_active = True
-            db.session.commit()
-            flash("Account Verified!", "success")
-            return redirect(url_for('login'))
-        flash("Invalid OTP!", "danger")
-    return render_template('verify_otp.html')
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -352,7 +289,6 @@ def login():
 
 @app.route('/profile', methods=['GET', 'POST'])
 @login_required
-<<<<<<< HEAD
 def logout():
     logout_user(); return redirect(url_for('index'))
 
@@ -375,7 +311,6 @@ def update_profile():
     flash('Account updated successfully!', 'success')
     return redirect(url_for('profile'))
 
-=======
 def profile():
     if request.method == 'POST':
         current_user.phone = request.form.get('phone')
@@ -412,49 +347,18 @@ def add_to_cart(product_id):
     if product_id not in session['cart']:
         session['cart'].append(product_id); session.modified = True
     return redirect(url_for('cart'))
->>>>>>> 2a321904245db37279ca89faf18e5b0a873a8079
-
 @app.route('/cart')
 def cart():
     cart_ids = session.get('cart', [])
     products = Product.query.filter(Product.id.in_(cart_ids)).all()
     return render_template('cart.html', products=products, total=sum(p.price for p in products))
 
-<<<<<<< HEAD
-@app.route('/add_to_cart/<int:product_id>')
-def add_to_cart(product_id):
-    session.setdefault('cart', [])
-    if product_id not in session['cart']:
-        session['cart'].append(product_id); session.modified = True
-    return redirect(url_for('cart'))
-=======
-@app.route('/checkout', methods=['GET', 'POST'])
-@login_required
-def checkout():
-    cart_ids = session.get('cart', [])
-    if not cart_ids: return redirect(url_for('index'))
-    products = Product.query.filter(Product.id.in_(cart_ids)).all()
-    total = sum(p.price for p in products)
-
-    if request.method == 'POST':
-        order = Order(
-            user_id=current_user.id, full_name=request.form['name'],
-            address=request.form['address'], phone=request.form['phone'],
-            total_amount=total
-        )
-        db.session.add(order); db.session.commit()
-        session.pop('cart', None)
-        flash("Order Placed!", "success")
-        return redirect(url_for('my_orders'))
-    return render_template('checkout.html', products=products, total=total)
->>>>>>> 2a321904245db37279ca89faf18e5b0a873a8079
 
 @app.route('/my_orders')
 @login_required
 def my_orders():
     return render_template('orders.html', orders=Order.query.filter_by(user_id=current_user.id).all())
 
-<<<<<<< HEAD
 @app.route('/cancel_order/<int:id>')
 @login_required
 def cancel_order(id):
@@ -564,11 +468,5 @@ def verify_otp():
             flash('Invalid OTP! Try again.', 'danger')
 
     return render_template('verify_otp.html')
-=======
-@app.route('/logout')
-def logout():
-    logout_user(); return redirect(url_for('index'))
-
->>>>>>> 2a321904245db37279ca89faf18e5b0a873a8079
 if __name__ == '__main__':
     app.run(debug=True)
