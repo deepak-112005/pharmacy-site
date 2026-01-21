@@ -450,7 +450,8 @@ def verify_otp():
         flash("Session expired! Please login again.", "danger")
         return redirect(url_for('login'))
 
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
+
 
     if request.method == 'POST':
         user_otp = request.form.get('otp') # Form-la irunthu vara OTP
