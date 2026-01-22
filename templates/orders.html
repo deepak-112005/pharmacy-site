@@ -127,6 +127,10 @@
                             <a href="{{ url_for('download_invoice', order_id=order.id) }}" class="btn btn-light btn-sm rounded-pill fw-bold border">
                                 <i class="bi bi-file-earmark-pdf me-1"></i> Download Invoice
                             </a>
+                            <!-- Line 63 in orders.html -->
+<a href="{{ url_for('cancel_order', id=order.id) }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Intha order-ah cancel pannalaama?')">
+   Cancel Order
+</a>
                             {% if order.prescription_file %}
                             <a href="{{ url_for('static', filename='uploads/' + order.prescription_file) }}" target="_blank" class="btn btn-outline-info btn-sm rounded-pill">
                                 <i class="bi bi-eye me-1"></i> View Prescription

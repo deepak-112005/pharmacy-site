@@ -321,5 +321,64 @@ def admin_dashboard():
         categories=Category.query.all()
     )
 
+@app.route('/download_invoice/<int:order_id>')
+@login_required
+def download_invoice(order_id):
+    order = db.session.get(Order, order_id) # Warning fix version
+    if not order:
+        flash("Order not found", "danger")
+        return redirect(url_for('my_orders'))
+
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("Arial", 'B', 16)
+    
+    # Simple Invoice Header
+    pdf.cell(190, 10, f"INVOICE - Medi kart", ln=True, align='C')
+    pdf.ln(10)
+    pdf.set_font("Arial", '', 12)
+    pdf.cell(100, 10, f"Order ID: #MK-{order.id}")
+    pdf.cell(90, 10, f"Date: {order.created_at.strftime('%d-%m-%Y')}", ln=True, align='R')
+    pdf.cell(100, 10, f"Customer: {order.full_name}", ln=True)
+    pdf.cell(100, 10, f"Phone: {order.phone}", ln=True)
+    pdf.ln(10)
+    
+    pdf.set_font("Arial", 'B', 12)
+    pdf.cell(140, 10, "Description", border=1)
+    pdf.cell(50, 10, "Amount", border=1, ln=True)
+    
+    pdf.set_font("Arial", '', 12)
+    pdf.cell(140, 10, f"Medicines Ordered: {order.medicines_ordered}", border=1)
+    pdf.cell(50, 10, f"Rs. {order.total_amount}", border=1, ln=True)
+    
+    pdf.ln(10)
+    pdf.set_font("Arial", 'B', 14)
+    pdf.cell(190, 10, f"Grand Total: Rs. {order.total_amount}", align='R')
+
+    response = make_response(pdf.output(dest='S').encode('latin-1'))
+    response.headers['Content-Disposition'] = f'attachment; filename=invoice_{order.id}.pdf'
+    response.headers['Content-Type'] = 'application/pdf'
+    return response
+
+@app.route('/cancel_order/<int:id>')
+@login_required
+def cancel_order(id):
+    # Modern SQLAlchemy version (Warning varaathu)
+    order = db.session.get(Order, id)
+    
+    if not order:
+        flash("Order not found!", "danger")
+        return redirect(url_for('my_orders'))
+
+    # Security Check: Order panna user illa admin mattum thaan cancel panna mudiyum
+    if order.user_id == current_user.id or current_user.username == 'admin':
+        db.session.delete(order)
+        db.session.commit()
+        flash('Order #MK-{} has been cancelled successfully.'.format(id), 'info')
+    else:
+        flash('Unauthorized action! You cannot cancel this order.', 'danger')
+        
+    return redirect(url_for('my_orders'))
+
 if __name__ == '__main__':
     app.run(debug=True)
