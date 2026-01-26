@@ -272,7 +272,138 @@
         };
         voiceBtn.onclick = () => recognition.start();
     } else { voiceBtn.style.display = 'none'; }
-</script>
 
+
+</script>
+<!-- --- START OF HOME PAGE SOS EMERGENCY FEATURE --- -->
+
+<style>
+    /* Floating SOS Button for Home Page */
+    .sos-home-fab {
+        position: fixed;
+        bottom: 100px; /* Chatbot-ku mela irukkum */
+        right: 30px;
+        z-index: 1050;
+        width: 65px;
+        height: 65px;
+        background: #dc3545;
+        color: white;
+        border-radius: 50%;
+        border: 4px solid white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 10px 25px rgba(220, 53, 69, 0.4);
+        cursor: pointer;
+        transition: 0.3s;
+        animation: home-sos-pulse 2s infinite;
+    }
+    
+    @keyframes home-sos-pulse {
+        0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); }
+        70% { transform: scale(1.1); box-shadow: 0 0 0 15px rgba(220, 53, 69, 0); }
+        100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
+    }
+
+    .sos-home-fab:hover {
+        background: #b02a37;
+        transform: scale(1.1) rotate(15deg);
+    }
+
+    /* First Aid Cards Style */
+    .aid-card {
+        border: none;
+        border-radius: 20px;
+        background: #fff;
+        transition: 0.3s;
+        border-bottom: 5px solid #dc3545;
+    }
+    .aid-card:hover { background: #fff5f5; transform: translateY(-5px); }
+</style>
+
+<!-- Floating SOS Button -->
+<div class="sos-home-fab" data-bs-toggle="modal" data-bs-target="#sosHomeModal" title="Emergency Help">
+    <i class="bi bi- megaphone-fill fs-3" style="margin-bottom: 5px;"></i>
+    <span style="font-size: 10px; position: absolute; bottom: 8px; font-weight: bold;">SOS</span>
+</div>
+
+<!-- SOS Emergency Modal -->
+<div class="modal fade" id="sosHomeModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 30px;">
+            <div class="modal-header bg-danger text-white py-3" style="border-radius: 30px 30px 0 0;">
+                <h5 class="modal-title fw-bold mx-auto">
+                    <i class="bi bi-life-preserver me-2"></i>FIRST AID EMERGENCY GUIDE
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" style="margin-left: 0;"></button>
+            </div>
+            
+            <div class="modal-body p-4 bg-light">
+                <div class="row g-3">
+                    <!-- Heart Attack -->
+                    <div class="col-md-6">
+                        <div class="aid-card p-3 shadow-sm h-100">
+                            <div class="d-flex align-items-center mb-2">
+                                <div class="bg-danger bg-opacity-10 p-2 rounded-circle me-3">
+                                    <i class="bi bi-heart-pulse-fill text-danger fs-4"></i>
+                                </div>
+                                <h6 class="fw-bold mb-0">Heart Attack (மாரடைப்பு)</h6>
+                            </div>
+                            <p class="small text-muted mb-0">உடனே அமர வைக்கவும். இருக்கமான உடைகளை தளர்த்தவும். சுவாசம் நின்றால் CPR செய்யவும்.</p>
+                        </div>
+                    </div>
+
+                    <!-- Fainting -->
+                    <div class="col-md-6">
+                        <div class="aid-card p-3 shadow-sm h-100" style="border-bottom-color: #ffc107;">
+                            <div class="d-flex align-items-center mb-2">
+                                <div class="bg-warning bg-opacity-10 p-2 rounded-circle me-3">
+                                    <i class="bi bi-person-walking text-warning fs-4"></i>
+                                </div>
+                                <h6 class="fw-bold mb-0">Fainting (மயக்கம்)</h6>
+                            </div>
+                            <p class="small text-muted mb-0">தரையோடு சமமாக படுக்க வைக்கவும். கால்களை உயர்த்தி வைக்கவும் (Legs up). காற்றோட்டம் முக்கியம்.</p>
+                        </div>
+                    </div>
+
+                    <!-- Burns -->
+                    <div class="col-md-6">
+                        <div class="aid-card p-3 shadow-sm h-100" style="border-bottom-color: #fd7e14;">
+                            <div class="d-flex align-items-center mb-2">
+                                <div class="bg-orange bg-opacity-10 p-2 rounded-circle me-3">
+                                    <i class="bi bi-fire text-orange fs-4" style="color:#fd7e14"></i>
+                                </div>
+                                <h6 class="fw-bold mb-0">Burns (தீக்காயம்)</h6>
+                            </div>
+                            <p class="small text-muted mb-0">காயமடைந்த இடத்தில் 10-15 நிமிடம் குளிர்ந்த தண்ணீரை ஊற்றவும். ஐஸ் அல்லது ஆயில் தடவக்கூடாது.</p>
+                        </div>
+                    </div>
+
+                    <!-- Snake Bite -->
+                    <div class="col-md-6">
+                        <div class="aid-card p-3 shadow-sm h-100" style="border-bottom-color: #198754;">
+                            <div class="d-flex align-items-center mb-2">
+                                <div class="bg-success bg-opacity-10 p-2 rounded-circle me-3">
+                                    <i class="bi bi-bug-fill text-success fs-4"></i>
+                                </div>
+                                <h6 class="fw-bold mb-0">Snake Bite (பாம்பு கடி)</h6>
+                            </div>
+                            <p class="small text-muted mb-0">கடிபட்ட நபர் அசையாமல் இருக்க வேண்டும். காயத்தை இதயத்திற்கு கீழே வைக்கவும். வாயால் விஷத்தை உறிஞ்சக் கூடாது.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center mt-4">
+                    <p class="small text-muted mb-2">இவை முதலுதவி மட்டுமே. உடனே ஆம்புலன்ஸை அழைக்கவும்.</p>
+                    <a href="tel:108" class="btn btn-danger btn-lg w-100 rounded-pill fw-bold shadow">
+                        <i class="bi bi-telephone-outbound-fill me-2"></i> CALL AMBULANCE (108)
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- --- END OF HOME PAGE SOS EMERGENCY FEATURE --- -->
 </body>
 </html>

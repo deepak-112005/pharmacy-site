@@ -4,6 +4,7 @@
     <title>Medi kart | Pro Healthcare Radar</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
+    <!-- Leaflet & Modern Fonts -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -15,6 +16,7 @@
 
         #map { height: 100%; width: 100%; position: absolute; }
 
+        /* Side Panel */
         .side-panel {
             position: absolute; top: 20px; left: 20px; bottom: 20px;
             width: 380px; z-index: 1000; display: flex; flex-direction: column; gap: 15px;
@@ -26,12 +28,34 @@
             box-shadow: 0 10px 40px rgba(0,0,0,0.1);
         }
 
-        #places-list { max-height: 55vh; overflow-y: auto; scrollbar-width: none; }
+        /* --- SCROLLBAR UPDATED SECTION --- */
+        #places-list { 
+            max-height: 55vh; 
+            overflow-y: auto; 
+            padding-right: 10px; /* Space for scrollbar */
+        }
+
+        /* Custom Scrollbar Styling (Teal Theme) */
+        #places-list::-webkit-scrollbar {
+            width: 6px;
+        }
+        #places-list::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 10px;
+        }
+        #places-list::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 10px;
+        }
+        #places-list::-webkit-scrollbar-thumb:hover {
+            background: #00897b;
+        }
+
         .place-item {
             padding: 16px; border-radius: 18px; margin-bottom: 12px;
             transition: 0.3s; cursor: pointer; border: 2px solid transparent; background: white;
         }
-        .place-item:hover { transform: translateX(8px); border-color: var(--primary); }
+        .place-item:hover { transform: translateX(5px); border-color: var(--primary); }
 
         .search-box { position: relative; }
         .search-box input { border-radius: 15px; padding-left: 45px; height: 50px; border: 2px solid #eee; }
@@ -43,10 +67,12 @@
 
         .status-badge { font-size: 0.65rem; padding: 3px 8px; border-radius: 6px; font-weight: 700; }
         .open-24 { background: #dcfce7; color: #166534; }
-        .closed { background: #fee2e2; color: #991b1b; }
+        .closed { background: #f1f5f9; color: #64748b; }
 
         .marker-pin { width: 30px; height: 30px; border-radius: 50% 50% 50% 0; display: flex; align-items: center; justify-content: center; color: white; transform: rotate(-45deg); border: 2px solid white; }
         .marker-pin i { transform: rotate(45deg); }
+        
+        .btn-nav { font-size: 0.7rem; font-weight: 700; border-radius: 10px; padding: 5px 12px; }
     </style>
 </head>
 <body>
@@ -58,29 +84,30 @@
         <h5 class="fw-bold mb-3"><i class="bi bi-radar me-2 text-primary"></i>Healthcare Radar</h5>
         <div class="search-box">
             <i class="bi bi-search"></i>
-            <input type="text" id="mapSearch" class="form-control" placeholder="Search by name (e.g. Apollo)..." oninput="renderList()">
+            <input type="text" id="mapSearch" class="form-control" placeholder="Search Hospital / Medical..." oninput="renderList()">
         </div>
         <div class="mt-3 d-flex gap-2">
-            <button class="btn btn-sm btn-outline-dark rounded-pill px-3" onclick="filter247()">24/7 Only</button>
-            <button class="btn btn-sm btn-outline-dark rounded-pill px-3" onclick="resetFilters()">All</button>
+            <button class="btn btn-sm btn-outline-dark rounded-pill px-3" id="toggle24" onclick="toggle247()">24/7 Only</button>
+            <button class="btn btn-sm btn-outline-dark rounded-pill px-3" onclick="resetFilters()">Reset</button>
         </div>
     </div>
 
     <div class="glass-card p-3 flex-grow-1">
         <div class="d-flex justify-content-between align-items-center mb-3 px-2">
-            <h6 class="fw-bold mb-0">Nearby Services</h6>
+            <h6 class="fw-bold mb-0">Nearby Facilities</h6>
             <span class="badge bg-primary rounded-pill" id="count-tag">0</span>
         </div>
         <div id="places-list">
-            <!-- Dynamic List -->
+            <!-- List items dynamically loaded here -->
+            <div class="text-center py-5"><div class="spinner-border text-primary"></div></div>
         </div>
     </div>
 </div>
 
 <div class="map-themes">
-    <button class="theme-btn active" id="btn-street" onclick="setBaseLayer('street')" title="Street View"><i class="bi bi-map"></i></button>
-    <button class="theme-btn" id="btn-satellite" onclick="setBaseLayer('satellite')" title="Satellite View"><i class="bi bi-globe"></i></button>
-    <button class="theme-btn" onclick="map.flyTo(userPos, 16)" title="My Location"><i class="bi bi-crosshair"></i></button>
+    <button class="theme-btn active" id="btn-street" onclick="setBaseLayer('street')"><i class="bi bi-map"></i></button>
+    <button class="theme-btn" id="btn-satellite" onclick="setBaseLayer('satellite')"><i class="bi bi-globe"></i></button>
+    <button class="theme-btn" onclick="map.flyTo(userPos, 16)"><i class="bi bi-crosshair"></i></button>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -110,7 +137,10 @@
             html: '<div style="background:#000; color:#fff; width:35px; height:35px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:3px solid white; box-shadow:0 0 15px rgba(0,0,0,0.3);"><i class="bi bi-person-fill"></i></div>',
             className: '', iconSize: [35, 35], iconAnchor: [17, 17]
         })
-    }).addTo(map).bindPopup("<b>Your Location</b>");
+    }).addTo(map).bindPopup("<b>You are here</b>");
+
+    // Radar Range Circle (2KM)
+    L.circle(userPos, { radius: 2000, color: '#00a699', fillOpacity: 0.05, weight: 1, dashArray: '5, 10' }).addTo(map);
 
     function calculateDistance(lat1, lon1, lat2, lon2) {
         const R = 6371;
@@ -152,44 +182,150 @@
         filtered.forEach(poi => {
             const name = poi.tags.name || "Healthcare Center";
             const type = poi.tags.amenity;
-            const hours = poi.tags.opening_hours || "Timings not updated";
+            const hours = poi.tags.opening_hours || "Timings unknown";
             const is24 = hours.includes("24/7");
+            const phone = poi.tags.phone || "";
             
             let color = type === 'hospital' ? '#ef4444' : (type === 'pharmacy' ? '#10b981' : '#3b82f6');
             let icon = type === 'hospital' ? 'bi-h-square-fill' : (type === 'pharmacy' ? 'bi-capsule' : 'bi-microscope');
 
-            // Marker
             const mIcon = L.divIcon({
                 html: `<div class="marker-pin" style="background:${color}"><i class="bi ${icon}"></i></div>`,
                 className: '', iconSize:[30, 30], iconAnchor:[15, 30]
             });
-            L.marker([poi.lat, poi.lon], {icon: mIcon}).addTo(markersLayer).bindPopup(`<b>${name}</b><br>${hours}`);
+            L.marker([poi.lat, poi.lon], {icon: mIcon}).addTo(markersLayer).bindPopup(`<b>${name}</b><br><small>${hours}</small>`);
 
-            // List Item
             list.innerHTML += `
-                <div class="place-item shadow-sm" onclick="map.flyTo([${poi.lat}, ${poi.lon}], 18)">
-                    <div class="d-flex justify-content-between align-items-start">
+                <div class="place-item shadow-sm">
+                    <div class="d-flex justify-content-between align-items-start" onclick="map.flyTo([${poi.lat}, ${poi.lon}], 18)">
                         <div class="d-flex gap-3">
                             <div class="fs-4" style="color:${color}"><i class="bi ${icon}"></i></div>
                             <div>
-                                <h6 class="fw-bold mb-0" style="font-size:0.9rem;">${name}</h6>
-                                <span class="status-badge ${is24 ? 'open-24':'closed'}">${is24 ? 'OPEN 24/7' : 'CHECK HOURS'}</span>
+                                <h6 class="fw-bold mb-0" style="font-size:0.85rem;">${name}</h6>
+                                <span class="status-badge ${is24 ? 'open-24':'closed'}">${is24 ? 'OPEN 24/7' : hours}</span>
                             </div>
                         </div>
                         <span class="badge bg-light text-dark" style="font-size:0.7rem;">${poi.dist} km</span>
                     </div>
-                    <div class="mt-2 small text-muted"><i class="bi bi-clock me-1"></i> ${hours}</div>
+                    <div class="mt-3 d-flex gap-2">
+                        <a href="https://www.google.com/maps/dir/?api=1&destination=${poi.lat},${poi.lon}" target="_blank" class="btn btn-outline-primary btn-nav flex-grow-1">
+                            <i class="bi bi-geo-alt-fill"></i> NAVIGATE
+                        </a>
+                        ${phone ? `<a href="tel:${phone}" class="btn btn-outline-success btn-nav"><i class="bi bi-telephone-fill"></i> CALL</a>` : ''}
+                    </div>
                 </div>
             `;
         });
         document.getElementById('count-tag').innerText = filtered.length;
     }
 
-    function filter247() { only247 = true; renderList(); }
+    function toggle247() { 
+        only247 = !only247; 
+        document.getElementById('toggle24').classList.toggle('btn-dark');
+        renderList(); 
+    }
     function resetFilters() { only247 = false; document.getElementById('mapSearch').value = ""; renderList(); }
 
     map.on('moveend', fetchData);
     fetchData();
 </script>
+<!-- --- START OF SOS EMERGENCY FEATURE --- -->
+
+<!-- 1. Floating SOS Button (Pulse Animation) -->
+<style>
+    .sos-btn {
+        position: absolute; bottom: 100px; right: 20px; z-index: 1001;
+        width: 60px; height: 60px; background: #dc3545; color: white;
+        border-radius: 50%; border: none; display: flex; align-items: center; justify-content: center;
+        box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); animation: sos-pulse 1.5s infinite;
+        font-weight: bold; cursor: pointer;
+    }
+    @keyframes sos-pulse {
+        0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); }
+        70% { transform: scale(1); box-shadow: 0 0 0 15px rgba(220, 53, 69, 0); }
+        100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
+    }
+    .first-aid-card { border-left: 5px solid #dc3545; border-radius: 15px; background: #fff5f5; transition: 0.3s; }
+    .first-aid-card:hover { transform: scale(1.02); }
+</style>
+
+<button class="sos-btn shadow-lg" data-bs-toggle="modal" data-bs-target="#sosModal">
+    <i class="bi bi-exclamation-triangle-fill fs-3"></i>
+</button>
+
+<!-- 2. SOS First Aid Modal -->
+<div class="modal fade" id="sosModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content rounded-4 border-0 shadow-lg">
+            <div class="modal-header bg-danger text-white rounded-top-4">
+                <h5 class="modal-title fw-bold"><i class="bi bi-life-preserver me-2"></i>Emergency First Aid Guide</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4" style="max-height: 70vh; overflow-y: auto;">
+                <p class="text-muted mb-4 text-center">Hospital-ku poradhukulla keelkanda steps-ah follow pannunga. <b>Ambulance-ah call panna marakkadhinga!</b></p>
+                
+                <div class="row g-3">
+                    <!-- Heart Attack -->
+                    <div class="col-md-6">
+                        <div class="first-aid-card p-3 shadow-sm h-100">
+                            <h6 class="fw-bold text-danger"><i class="bi bi-heart-pulse-fill me-2"></i>Heart Attack (மாரடைப்பு)</h6>
+                            <ul class="small ps-3">
+                                <li>User-ah saaya vachi uka vainga (Sit up).</li>
+                                <li>Tight-a irukura dress-ah loosen pannunga.</li>
+                                <li>Aspirin available-ah irundha chewing panna sollunga.</li>
+                                <li>Mayakkam vandha CPR start pannunga.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Burns -->
+                    <div class="col-md-6">
+                        <div class="first-aid-card p-3 shadow-sm h-100">
+                            <h6 class="fw-bold text-danger"><i class="bi bi-fire me-2"></i>Burns (தீக்காயம்)</h6>
+                            <ul class="small ps-3">
+                                <li>10-20 mins kulirndha thanni-la katanum (Cool water).</li>
+                                <li>Ice, Butter, illana Oil edhuvum thadava koodadhu.</li>
+                                <li>Kayam pattu irukura idathula clean cloth-ah cover pannunga.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Fainting -->
+                    <div class="col-md-6">
+                        <div class="first-aid-card p-3 shadow-sm h-100" style="border-left-color: #ffc107;">
+                            <h6 class="fw-bold text-warning text-dark"><i class="bi bi-person-walking me-2"></i>Fainting (மயக்கம்)</h6>
+                            <ul class="small ps-3">
+                                <li>Thara-la flat-ah padukka vainga.</li>
+                                <li>Kaalgal-ah (Legs) mela thooki vainga (Raise legs).</li>
+                                <li>Nalla kaatru varra mathiri vachukonga.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Choking -->
+                    <div class="col-md-6">
+                        <div class="first-aid-card p-3 shadow-sm h-100" style="border-left-color: #0d6efd;">
+                            <h6 class="fw-bold text-primary"><i class="bi bi-person-fill-exclamation me-2"></i>Choking (மூச்சுத்திணறல்)</h6>
+                            <ul class="small ps-3">
+                                <li>Heimlich Maneuver (Vayithu pagudhi-la back side irundhu pressure kudukanum).</li>
+                                <li>5 thadavai mudhugula thattanum (Back blows).</li>
+                                <li>Object velliya varavara pannanum.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="alert alert-info mt-4 small border-0 rounded-3">
+                    <i class="bi bi-info-circle-fill me-2"></i> <b>Note:</b> Idhu oru temporary guide mattum thaan. Udane medical help-ah contact pannunga.
+                </div>
+            </div>
+            <div class="modal-footer border-0">
+                <a href="tel:108" class="btn btn-danger w-100 rounded-pill fw-bold py-2"><i class="bi bi-telephone-fill me-2"></i>CALL AMBULANCE (108)</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- --- END OF SOS EMERGENCY FEATURE --- -->
 </body>
 </html>
