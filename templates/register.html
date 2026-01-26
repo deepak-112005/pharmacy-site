@@ -73,22 +73,20 @@
     <a href="/" class="text-muted small text-decoration-none"><i class="bi bi-arrow-left me-1"></i>Back to Home</a>
 </div>
 
+// register.html script section replace pannunga
 <script>
-    // Get Browser Geolocation on Page Load
     window.onload = function() {
         if (navigator.geolocation) {
+            // High Accuracy set pannuna thaan real street location varum
             navigator.geolocation.getCurrentPosition(function(position) {
                 document.getElementById('lat').value = position.coords.latitude;
                 document.getElementById('lng').value = position.coords.longitude;
-                console.log("Location captured: " + position.coords.latitude + ", " + position.coords.longitude);
+                console.log("Accurate Location captured");
             }, function(error) {
-                console.log("Geolocation error: " + error.message);
-            });
-        } else {
-            console.log("Geolocation not supported by this browser.");
+                alert("Please enable location for delivery tracking.");
+            }, { enableHighAccuracy: true });
         }
     }
 </script>
-
 </body>
 </html>

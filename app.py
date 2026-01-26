@@ -5,11 +5,9 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from fpdf import FPDF 
 from PIL import Image
-from datetime import datetime, timedelta
+from datetime import datetime
 from flask_mail import Mail, Message
-import easyocr
 import random
-import re
 import os
 
 # 1. INITIALIZE APP
@@ -21,7 +19,7 @@ BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(BASE_DIR, 'pharmacy.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# Email Config (Only Email now)
+# Email Config
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
@@ -54,7 +52,6 @@ class User(db.Model, UserMixin):
     lng = db.Column(db.String(50))
     is_active = db.Column(db.Boolean, default=False) 
     otp = db.Column(db.String(6))
-    otp_expiry = db.Column(db.DateTime)
     reg_date = db.Column(db.DateTime, default=datetime.utcnow)
 
 class Category(db.Model):
@@ -91,44 +88,31 @@ class Order(db.Model):
 def load_user(user_id):
     return db.session.get(User, int(user_id))
 
-# 5. HELPERS (Email Only)
+# 5. HELPERS
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-def send_notifications(order, user):
-    msg_body = f"Hi {user.username},\n\nOrder #MK-{order.id} confirmed!\nTotal: ₹{order.total_amount}\nDelivery Address: {order.address}\n\nGet well soon! - Medi kart"
+def send_order_email(order, user):
     try:
-        msg = Message(f"Medi kart: Order Confirmed #MK-{order.id}", sender=app.config['MAIL_USERNAME'], recipients=[user.email])
-        msg.body = msg_body
+        msg = Message(f"Medi kart: Order Confirmed #MK-{order.id}", 
+                      sender=app.config['MAIL_USERNAME'], recipients=[user.email])
+        msg.body = f"Hi {user.username},\n\nOrder Confirmed!\nTotal: ₹{order.total_amount}\nMedicines: {order.medicines_ordered}\nDelivery to: {order.address}\n\nTrack here: http://127.0.0.1:5000/track/{order.id}"
         mail.send(msg)
-    except Exception as e: print(f"Email Notification Error: {e}")
+    except Exception as e:
+        print(f"Email Error: {e}")
 
 def send_otp_email(email, otp):
     try:
         msg = Message('Medi kart: Your OTP Verification Code', 
-                      sender=app.config['MAIL_USERNAME'], 
-                      recipients=[email])
-        msg.body = f"Your verification code is: {otp}. It will expire in 5 minutes."
+                      sender=app.config['MAIL_USERNAME'], recipients=[email])
+        msg.body = f"Your verification code is: {otp}. Valid for 5 minutes."
         mail.send(msg)
         return True
     except Exception as e:
-        print(f"OTP Mail Error: {e}")
+        print(f"Mail Error: {e}")
         return False
 
-# 6. SEED DATA
-def seed_database():
-    categories_list = ["MEDICINES", "COSMETICS & PERSONAL CARE", "MEDICAL INSTRUMENTS", "SURGICAL & FIRST AID ITEMS", "WELLNESS & HEALTH SUPPLEMENTS"]
-    for c_name in categories_list:
-        if not Category.query.filter_by(name=c_name).first():
-            db.session.add(Category(name=c_name))
-    db.session.commit()
-
-with app.app_context():
-    db.create_all()
-    seed_database()
-
-# ---------------- ROUTES ----------------
-
+# 6. ROUTES
 @app.route('/')
 def index():
     categories = Category.query.all()
@@ -139,39 +123,113 @@ def index():
     else: products = Product.query.all()
     return render_template('index.html', products=products, categories=categories)
 
-@app.route('/register', methods=['GET', 'POST'])
-def register():
+@app.route('/cart')
+def cart():
+    cart_session = session.get('cart', {})
+    if isinstance(cart_session, list): # Fix for old list-based cart
+        new_cart = {}
+        for p_id in cart_session: new_cart[str(p_id)] = new_cart.get(str(p_id), 0) + 1
+        session['cart'] = new_cart
+        cart_session = new_cart
+
+    products_in_cart = []
+    subtotal = 0
+    for p_id, qty in cart_session.items():
+        product = db.session.get(Product, int(p_id))
+        if product:
+            item_total = product.price * qty
+            subtotal += item_total
+            products_in_cart.append({'info': product, 'qty': qty, 'total': item_total})
+    
+    delivery = 40 if subtotal < 500 and subtotal > 0 else 0
+    return render_template('cart.html', items=products_in_cart, subtotal=subtotal, delivery=delivery, total=subtotal + delivery)
+
+@app.route('/add_to_cart/<int:product_id>')
+def add_to_cart(product_id):
+    cart = session.get('cart', {})
+    if not isinstance(cart, dict): cart = {}
+    cart[str(product_id)] = cart.get(str(product_id), 0) + 1
+    session['cart'] = cart
+    session.modified = True
+    flash("Added to cart!", "success")
+    return redirect(url_for('cart'))
+
+@app.route('/checkout', methods=['GET', 'POST'])
+@login_required
+def checkout():
+    cart_dict = session.get('cart', {})
+    if not cart_dict: return redirect(url_for('index'))
+
+    products = Product.query.filter(Product.id.in_(cart_dict.keys())).all()
+    total = sum(p.price * cart_dict.get(str(p.id), 1) for p in products)
+
     if request.method == 'POST':
-        uname, uemail, uphone, pwd = request.form.get('username'), request.form.get('email'), request.form.get('phone'), request.form.get('password')
-        if User.query.filter((User.username == uname) | (User.email == uemail)).first():
-            flash("User already exists!", "danger"); return redirect(url_for('register'))
+        file = request.files.get('prescription')
+        filename = None
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
-        otp_code = str(random.randint(100000, 999999))
-        new_user = User(username=uname, email=uemail, phone=uphone, password=generate_password_hash(pwd), otp=otp_code)
-        db.session.add(new_user); db.session.commit()
-        
-        send_otp_email(uemail, otp_code)
-        session['verify_user_id'] = new_user.id
-        flash("OTP sent to your email for account activation!", "info")
-        return redirect(url_for('verify_otp'))
-    return render_template('register.html')
+        # Capture medicine names for DB
+        med_names = ", ".join([p.name for p in products])
 
-@app.route('/profile')
+        new_order = Order(
+            user_id=current_user.id, 
+            full_name=request.form.get('name'), 
+            address=request.form.get('address'), 
+            phone=request.form.get('phone'), 
+            prescription_file=filename, 
+            payment_method=request.form.get('payment'),
+            total_amount=total, 
+            medicines_ordered=med_names,
+            verification_status="Approved"
+        )
+        db.session.add(new_order)
+        db.session.commit()
+
+        send_order_email(new_order, current_user)
+        session.pop('cart', None)
+        flash("Order Placed Successfully!", "success")
+        return redirect(url_for('my_orders'))
+
+    return render_template('checkout.html', products=products, total=total)
+
+@app.route('/profile', methods=['GET', 'POST'])
 @login_required
 def profile():
-    # User-oda orders count-ah edukrom
+    if request.method == 'POST':
+        current_user.phone = request.form.get('phone')
+        current_user.address = request.form.get('address')
+        db.session.commit()
+        flash('Profile updated!', 'success')
     order_count = Order.query.filter_by(user_id=current_user.id).count()
     return render_template('profile.html', user=current_user, order_count=order_count)
 
-@app.route('/update_profile', methods=['POST'])
-@login_required
-def update_profile():
-    # Profile update logic
-    current_user.phone = request.form.get('phone')
-    current_user.address = request.form.get('address')
-    db.session.commit()
-    flash('Account updated successfully!', 'success')
-    return redirect(url_for('profile'))
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        uemail = request.form.get('email')
+        if User.query.filter_by(email=uemail).first():
+            flash("Email already exists!", "danger")
+            return redirect(url_for('register'))
+
+        otp_code = str(random.randint(100000, 999999))
+        new_user = User(
+            username=request.form.get('username'), 
+            email=uemail, 
+            phone=request.form.get('phone'),
+            password=generate_password_hash(request.form.get('password')),
+            lat=request.form.get('lat'), lng=request.form.get('lng'), 
+            otp=otp_code
+        )
+        db.session.add(new_user)
+        db.session.commit()
+        
+        send_otp_email(uemail, otp_code)
+        session['verify_user_id'] = new_user.id
+        flash("Check email for OTP!", "info")
+        return redirect(url_for('verify_otp'))
+    return render_template('register.html')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -181,14 +239,10 @@ def login():
             otp_code = str(random.randint(100000, 999999))
             user.otp = otp_code
             db.session.commit()
-            
-            print(f"DEBUG: Login OTP for {user.username} is {otp_code}")
             send_otp_email(user.email, otp_code)
-            
             session['verify_user_id'] = user.id
-            flash("Login OTP sent to your email!", "info")
             return redirect(url_for('verify_otp'))
-        flash('Invalid username or password', 'danger')
+        flash('Invalid Credentials', 'danger')
     return render_template('login.html')
 
 @app.route('/verify-otp', methods=['GET', 'POST'])
@@ -198,187 +252,81 @@ def verify_otp():
     user = db.session.get(User, user_id)
 
     if request.method == 'POST':
-        user_otp = request.form.get('otp').strip()
-        db_otp = str(user.otp).strip() if user.otp else ""
-
-        if user_otp == db_otp:
+        if request.form.get('otp') == user.otp:
             user.is_active = True
-            user.otp = None 
             db.session.commit()
             login_user(user)
             session.pop('verify_user_id', None)
-            flash('Successfully Verified!', 'success')
             return redirect(url_for('index'))
-        flash('Invalid OTP code! Try again.', 'danger')
+        flash('Invalid OTP', 'danger')
     return render_template('verify_otp.html')
-
-@app.route('/checkout', methods=['GET', 'POST'])
-@login_required
-def checkout():
-    cart_ids = session.get('cart', [])
-    if not cart_ids: return redirect(url_for('index'))
-    products = Product.query.filter(Product.id.in_(cart_ids)).all()
-    total = sum(p.price for p in products)
-
-    if request.method == 'POST':
-        file = request.files.get('prescription')
-        filename = None
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-
-        new_order = Order(
-            user_id=current_user.id, full_name=request.form.get('name'), 
-            address=request.form.get('address'), phone=request.form.get('phone'), 
-            prescription_file=filename, payment_method=request.form.get('payment'),
-            total_amount=total, medicines_ordered=", ".join([p.name for p in products])
-        )
-        db.session.add(new_order); db.session.commit()
-        send_notifications(new_order, current_user)
-        session.pop('cart', None)
-        flash("Order Placed Successfully!", "success")
-        return redirect(url_for('my_orders'))
-    return render_template('checkout.html', products=products, total=total)
-
-@app.route('/logout')
-@login_required
-def logout():
-    logout_user(); session.clear()
-    flash("Logged out.", "info")
-    return redirect(url_for('index'))
-
-# --- OTHER ROUTES ---
-@app.route('/add_to_cart/<int:product_id>')
-def add_to_cart(product_id):
-    if 'cart' not in session:
-        session['cart'] = {} # Dictionary: {product_id: quantity}
-    
-    cart = session['cart']
-    p_id = str(product_id)
-    
-    if p_id in cart:
-        cart[p_id] += 1
-    else:
-        cart[p_id] = 1
-    
-    session.modified = True
-    flash("Product added to cart!", "success")
-    return redirect(url_for('cart'))
-
-@app.route('/update_cart/<int:product_id>/<action>')
-def update_cart(product_id, action):
-    cart = session.get('cart', {})
-    p_id = str(product_id)
-    
-    if p_id in cart:
-        if action == 'add':
-            cart[p_id] += 1
-        elif action == 'sub' and cart[p_id] > 1:
-            cart[p_id] -= 1
-        elif action == 'remove':
-            cart.pop(p_id)
-            
-    session.modified = True
-    return redirect(url_for('cart'))
-
-@app.route('/cart')
-def cart():
-    cart_items = session.get('cart', {})
-    products_in_cart = []
-    subtotal = 0
-    
-    for p_id, qty in cart_items.items():
-        product = db.session.get(Product, int(p_id))
-        if product:
-            item_total = product.price * qty
-            subtotal += item_total
-            products_in_cart.append({
-                'info': product,
-                'qty': qty,
-                'total': item_total
-            })
-    
-    delivery = 40 if subtotal < 500 and subtotal > 0 else 0
-    grand_total = subtotal + delivery
-    
-    return render_template('cart.html', items=products_in_cart, subtotal=subtotal, delivery=delivery, total=grand_total)
-
-
 
 @app.route('/my_orders')
 @login_required
 def my_orders():
-    return render_template('orders.html', orders=Order.query.filter_by(user_id=current_user.id).all())
+    orders = Order.query.filter_by(user_id=current_user.id).order_by(Order.created_at.desc()).all()
+    return render_template('orders.html', orders=orders)
 
-@app.route('/admin')
-@login_required
-def admin_dashboard():
-    if current_user.username != 'admin': return redirect(url_for('index'))
-    return render_template('admin.html', 
-        p_count=Product.query.count(), o_count=Order.query.count(),
-        total_rev=db.session.query(db.func.sum(Order.total_amount)).scalar() or 0,
-        products=Product.query.all(), users=User.query.filter(User.username != 'admin').all(),
-        categories=Category.query.all()
-    )
+@app.route('/logout')
+def logout():
+    logout_user()
+    return redirect(url_for('index'))
 
-@app.route('/download_invoice/<int:order_id>')
-@login_required
-def download_invoice(order_id):
-    order = db.session.get(Order, order_id) # Warning fix version
-    if not order:
-        flash("Order not found", "danger")
-        return redirect(url_for('my_orders'))
 
-    pdf = FPDF()
-    pdf.add_page()
-    pdf.set_font("Arial", 'B', 16)
-    
-    # Simple Invoice Header
-    pdf.cell(190, 10, f"INVOICE - Medi kart", ln=True, align='C')
-    pdf.ln(10)
-    pdf.set_font("Arial", '', 12)
-    pdf.cell(100, 10, f"Order ID: #MK-{order.id}")
-    pdf.cell(90, 10, f"Date: {order.created_at.strftime('%d-%m-%Y')}", ln=True, align='R')
-    pdf.cell(100, 10, f"Customer: {order.full_name}", ln=True)
-    pdf.cell(100, 10, f"Phone: {order.phone}", ln=True)
-    pdf.ln(10)
-    
-    pdf.set_font("Arial", 'B', 12)
-    pdf.cell(140, 10, "Description", border=1)
-    pdf.cell(50, 10, "Amount", border=1, ln=True)
-    
-    pdf.set_font("Arial", '', 12)
-    pdf.cell(140, 10, f"Medicines Ordered: {order.medicines_ordered}", border=1)
-    pdf.cell(50, 10, f"Rs. {order.total_amount}", border=1, ln=True)
-    
-    pdf.ln(10)
-    pdf.set_font("Arial", 'B', 14)
-    pdf.cell(190, 10, f"Grand Total: Rs. {order.total_amount}", align='R')
 
-    response = make_response(pdf.output(dest='S').encode('latin-1'))
-    response.headers['Content-Disposition'] = f'attachment; filename=invoice_{order.id}.pdf'
-    response.headers['Content-Type'] = 'application/pdf'
-    return response
-
+# 1. CANCEL ORDER ROUTE
 @app.route('/cancel_order/<int:id>')
 @login_required
 def cancel_order(id):
-    # Modern SQLAlchemy version (Warning varaathu)
     order = db.session.get(Order, id)
-    
     if not order:
-        flash("Order not found!", "danger")
+        flash("Order not found", "danger")
         return redirect(url_for('my_orders'))
-
-    # Security Check: Order panna user illa admin mattum thaan cancel panna mudiyum
+    
+    # Security: Order panna user mattum thaan cancel panna mudiyum
     if order.user_id == current_user.id or current_user.username == 'admin':
         db.session.delete(order)
         db.session.commit()
-        flash('Order #MK-{} has been cancelled successfully.'.format(id), 'info')
+        flash('Order has been cancelled successfully.', 'info')
     else:
-        flash('Unauthorized action! You cannot cancel this order.', 'danger')
-        
+        flash('Unauthorized action!', 'danger')
     return redirect(url_for('my_orders'))
 
+# 2. DOWNLOAD INVOICE ROUTE
+@app.route('/download_invoice/<int:order_id>')
+@login_required
+def download_invoice(order_id):
+    order = db.session.get(Order, order_id)
+    if not order:
+        flash("Order not found", "danger")
+        return redirect(url_for('my_orders'))
+    
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("Arial", 'B', 16)
+    pdf.cell(190, 10, "INVOICE - Medi kart", ln=True, align='C')
+    res = make_response(pdf.output(dest='S').encode('latin-1'))
+    res.headers['Content-Disposition'] = f'attachment; filename=invoice_{order.id}.pdf'
+    res.headers['Content-Type'] = 'application/pdf'
+    return res
+
+# 3. TRACK ORDER ROUTE
+@app.route('/track/<int:order_id>')
+@login_required
+def track_order(order_id):
+    order = db.session.get(Order, order_id)
+    if not order:
+        flash("Order not found", "danger")
+        return redirect(url_for('my_orders'))
+    
+    # Coordinates (Chennai example)
+    pharmacy_coords = [13.0827, 80.2707] 
+    user_lat = float(current_user.lat) if current_user.lat else 13.0475
+    user_lng = float(current_user.lng) if current_user.lng else 80.2090
+    user_coords = [user_lat, user_lng]
+    
+    return render_template('track.html', order=order, pharmacy=pharmacy_coords, user=user_coords)
 if __name__ == '__main__':
+    with app.app_context():
+        db.create_all()
     app.run(debug=True)

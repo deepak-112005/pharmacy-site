@@ -1,47 +1,195 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Track Order - Medi kart</title>
+    <title>Medi kart | Pro Healthcare Radar</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    
     <style>
-        #map { height: 400px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-        .track-status { background: #00a699; color: white; padding: 20px; border-radius: 20px; margin-bottom: 20px; }
+        :root { --primary: #00a699; --hosp: #ef4444; --medi: #10b981; --diag: #3b82f6; --glass: rgba(255, 255, 255, 0.95); }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; overflow: hidden; height: 100vh; background: #f0f4f8; }
+
+        #map { height: 100%; width: 100%; position: absolute; }
+
+        .side-panel {
+            position: absolute; top: 20px; left: 20px; bottom: 20px;
+            width: 380px; z-index: 1000; display: flex; flex-direction: column; gap: 15px;
+        }
+
+        .glass-card {
+            background: var(--glass); backdrop-filter: blur(15px);
+            border-radius: 24px; border: 1px solid rgba(255,255,255,0.5);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+
+        #places-list { max-height: 55vh; overflow-y: auto; scrollbar-width: none; }
+        .place-item {
+            padding: 16px; border-radius: 18px; margin-bottom: 12px;
+            transition: 0.3s; cursor: pointer; border: 2px solid transparent; background: white;
+        }
+        .place-item:hover { transform: translateX(8px); border-color: var(--primary); }
+
+        .search-box { position: relative; }
+        .search-box input { border-radius: 15px; padding-left: 45px; height: 50px; border: 2px solid #eee; }
+        .search-box i { position: absolute; left: 15px; top: 15px; color: var(--primary); font-size: 1.2rem; }
+
+        .map-themes { position: absolute; top: 20px; right: 20px; z-index: 1000; display: flex; flex-direction: column; gap: 10px; }
+        .theme-btn { width: 45px; height: 45px; border-radius: 12px; border: none; background: white; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .theme-btn.active { background: var(--primary); color: white; }
+
+        .status-badge { font-size: 0.65rem; padding: 3px 8px; border-radius: 6px; font-weight: 700; }
+        .open-24 { background: #dcfce7; color: #166534; }
+        .closed { background: #fee2e2; color: #991b1b; }
+
+        .marker-pin { width: 30px; height: 30px; border-radius: 50% 50% 50% 0; display: flex; align-items: center; justify-content: center; color: white; transform: rotate(-45deg); border: 2px solid white; }
+        .marker-pin i { transform: rotate(45deg); }
     </style>
 </head>
-<body class="bg-light p-4">
-    <div class="container">
-        <div class="track-status shadow text-center">
-            <h3 class="fw-bold">Tracking Order #MK-{{ order.id }}</h3>
-            <p class="mb-0">Status: <span class="badge bg-warning text-dark">Out for Delivery</span></p>
+<body>
+
+<div id="map"></div>
+
+<div class="side-panel">
+    <div class="glass-card p-4">
+        <h5 class="fw-bold mb-3"><i class="bi bi-radar me-2 text-primary"></i>Healthcare Radar</h5>
+        <div class="search-box">
+            <i class="bi bi-search"></i>
+            <input type="text" id="mapSearch" class="form-control" placeholder="Search by name (e.g. Apollo)..." oninput="renderList()">
         </div>
-
-        <div id="map"></div>
-
-        <div class="mt-4 card p-4 border-0 rounded-4 shadow-sm">
-            <h5 class="fw-bold">Delivery Partner Details</h5>
-            <div class="d-flex align-items-center">
-                <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" width="50" class="me-3">
-                <div>
-                    <h6 class="mb-0">Rajesh Kumar</h6>
-                    <small class="text-muted">Verified Associate | ⭐ 4.9</small>
-                </div>
-                <a href="tel:9876543210" class="btn btn-success ms-auto rounded-pill px-4">Call Partner</a>
-            </div>
+        <div class="mt-3 d-flex gap-2">
+            <button class="btn btn-sm btn-outline-dark rounded-pill px-3" onclick="filter247()">24/7 Only</button>
+            <button class="btn btn-sm btn-outline-dark rounded-pill px-3" onclick="resetFilters()">All</button>
         </div>
     </div>
 
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script>
-        var map = L.map('map').setView([13.0827, 80.2707], 13); // Chennai
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+    <div class="glass-card p-3 flex-grow-1">
+        <div class="d-flex justify-content-between align-items-center mb-3 px-2">
+            <h6 class="fw-bold mb-0">Nearby Services</h6>
+            <span class="badge bg-primary rounded-pill" id="count-tag">0</span>
+        </div>
+        <div id="places-list">
+            <!-- Dynamic List -->
+        </div>
+    </div>
+</div>
 
-        // Marker for Pharmacy
-        L.marker([13.0827, 80.2707]).addTo(map).bindPopup('Medi kart Warehouse').openPopup();
+<div class="map-themes">
+    <button class="theme-btn active" id="btn-street" onclick="setBaseLayer('street')" title="Street View"><i class="bi bi-map"></i></button>
+    <button class="theme-btn" id="btn-satellite" onclick="setBaseLayer('satellite')" title="Satellite View"><i class="bi bi-globe"></i></button>
+    <button class="theme-btn" onclick="map.flyTo(userPos, 16)" title="My Location"><i class="bi bi-crosshair"></i></button>
+</div>
 
-        // Marker for Delivery Partner (Simulated Movement)
-        var deliveryIcon = L.icon({ iconUrl: 'https://cdn-icons-png.flaticon.com/512/2972/2972185.png', iconSize: [40, 40] });
-        var courier = L.marker([13.0700, 80.2500], {icon: deliveryIcon}).addTo(map).bindPopup('Your Medicine is here!');
-    </script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+    const userPos = {{ user | tojson }};
+    var map = L.map('map', { zoomControl: false }).setView(userPos, 15);
+    var markersLayer = L.layerGroup().addTo(map);
+    var allPOI = [];
+    var only247 = false;
+
+    const layers = {
+        street: L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png'),
+        satellite: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}')
+    };
+    layers.street.addTo(map);
+
+    function setBaseLayer(key) {
+        Object.values(layers).forEach(l => map.removeLayer(l));
+        layers[key].addTo(map);
+        document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById('btn-' + key).classList.add('active');
+    }
+
+    L.marker(userPos, {
+        icon: L.divIcon({
+            html: '<div style="background:#000; color:#fff; width:35px; height:35px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:3px solid white; box-shadow:0 0 15px rgba(0,0,0,0.3);"><i class="bi bi-person-fill"></i></div>',
+            className: '', iconSize: [35, 35], iconAnchor: [17, 17]
+        })
+    }).addTo(map).bindPopup("<b>Your Location</b>");
+
+    function calculateDistance(lat1, lon1, lat2, lon2) {
+        const R = 6371;
+        const dLat = (lat2-lat1) * Math.PI / 180;
+        const dLon = (lon2-lon1) * Math.PI / 180;
+        const a = Math.sin(dLat/2)*Math.sin(dLat/2) + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)*Math.sin(dLon/2);
+        return (R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))).toFixed(1);
+    }
+
+    async function fetchData() {
+        const bounds = map.getBounds();
+        const sw = bounds.getSouthWest(); const ne = bounds.getNorthEast();
+        const query = `[out:json];(node["amenity"~"hospital|pharmacy|clinic|doctors"](${sw.lat},${sw.lng},${ne.lat},${ne.lng}););out body;`;
+        
+        try {
+            const res = await fetch("https://overpass-api.de/api/interpreter?data=" + encodeURIComponent(query));
+            const data = await res.json();
+            allPOI = data.elements;
+            renderList();
+        } catch (e) { console.error(e); }
+    }
+
+    function renderList() {
+        markersLayer.clearLayers();
+        const list = document.getElementById('places-list');
+        list.innerHTML = "";
+        const searchTerm = document.getElementById('mapSearch').value.toLowerCase();
+
+        let filtered = allPOI.filter(poi => {
+            const name = (poi.tags.name || "").toLowerCase();
+            const is24 = (poi.tags.opening_hours || "").includes("24/7");
+            if (only247 && !is24) return false;
+            return name.includes(searchTerm);
+        });
+
+        filtered.forEach(poi => poi.dist = calculateDistance(userPos[0], userPos[1], poi.lat, poi.lon));
+        filtered.sort((a, b) => a.dist - b.dist);
+
+        filtered.forEach(poi => {
+            const name = poi.tags.name || "Healthcare Center";
+            const type = poi.tags.amenity;
+            const hours = poi.tags.opening_hours || "Timings not updated";
+            const is24 = hours.includes("24/7");
+            
+            let color = type === 'hospital' ? '#ef4444' : (type === 'pharmacy' ? '#10b981' : '#3b82f6');
+            let icon = type === 'hospital' ? 'bi-h-square-fill' : (type === 'pharmacy' ? 'bi-capsule' : 'bi-microscope');
+
+            // Marker
+            const mIcon = L.divIcon({
+                html: `<div class="marker-pin" style="background:${color}"><i class="bi ${icon}"></i></div>`,
+                className: '', iconSize:[30, 30], iconAnchor:[15, 30]
+            });
+            L.marker([poi.lat, poi.lon], {icon: mIcon}).addTo(markersLayer).bindPopup(`<b>${name}</b><br>${hours}`);
+
+            // List Item
+            list.innerHTML += `
+                <div class="place-item shadow-sm" onclick="map.flyTo([${poi.lat}, ${poi.lon}], 18)">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div class="d-flex gap-3">
+                            <div class="fs-4" style="color:${color}"><i class="bi ${icon}"></i></div>
+                            <div>
+                                <h6 class="fw-bold mb-0" style="font-size:0.9rem;">${name}</h6>
+                                <span class="status-badge ${is24 ? 'open-24':'closed'}">${is24 ? 'OPEN 24/7' : 'CHECK HOURS'}</span>
+                            </div>
+                        </div>
+                        <span class="badge bg-light text-dark" style="font-size:0.7rem;">${poi.dist} km</span>
+                    </div>
+                    <div class="mt-2 small text-muted"><i class="bi bi-clock me-1"></i> ${hours}</div>
+                </div>
+            `;
+        });
+        document.getElementById('count-tag').innerText = filtered.length;
+    }
+
+    function filter247() { only247 = true; renderList(); }
+    function resetFilters() { only247 = false; document.getElementById('mapSearch').value = ""; renderList(); }
+
+    map.on('moveend', fetchData);
+    fetchData();
+</script>
 </body>
 </html>
