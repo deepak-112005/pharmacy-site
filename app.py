@@ -144,15 +144,43 @@ def cart():
     delivery = 40 if subtotal < 500 and subtotal > 0 else 0
     return render_template('cart.html', items=products_in_cart, subtotal=subtotal, delivery=delivery, total=subtotal + delivery)
 
+@app.route('/update_cart/<int:product_id>/<string:action>')
+def update_cart(product_id, action):
+    # 1. Session-la cart dictionary irukkannu check panrom
+    if 'cart' not in session or not isinstance(session['cart'], dict):
+        session['cart'] = {}
+    
+    cart = session['cart']
+    p_id = str(product_id)
+
+    if p_id in cart:
+        if action == 'add':
+            cart[p_id] += 1
+        elif action == 'sub':
+            cart[p_id] -= 1
+            # Quantity 0-vukku kela pona, andha product-ah remove panniduvom
+            if cart[p_id] <= 0:
+                cart.pop(p_id)
+        elif action == 'remove':
+            # Direct-ah cart-la irundhu thookirom
+            cart.pop(p_id)
+
+    session.modified = True
+    return redirect(url_for('cart'))
+
+
 @app.route('/add_to_cart/<int:product_id>')
 def add_to_cart(product_id):
-    cart = session.get('cart', {})
-    if not isinstance(cart, dict): cart = {}
-    cart[str(product_id)] = cart.get(str(product_id), 0) + 1
-    session['cart'] = cart
+    if 'cart' not in session or isinstance(session['cart'], list):
+        session['cart'] = {}
+    
+    cart = session['cart']
+    p_id = str(product_id)
+    cart[p_id] = cart.get(p_id, 0) + 1
+    
     session.modified = True
-    flash("Added to cart!", "success")
-    return redirect(url_for('cart'))
+    # Redirect-ah thavirkka ippo JSON anupuvom (AJAX Support)
+    return jsonify({"success": True, "cart_count": sum(cart.values())})
 
 @app.route('/checkout', methods=['GET', 'POST'])
 @login_required
