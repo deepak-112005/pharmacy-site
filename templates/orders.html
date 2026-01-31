@@ -3,177 +3,113 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Orders - Medi kart</title>
+    <title>My Orders | Medi kart History</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    
     <style>
-        :root { --primary-color: #00a699; --secondary-color: #004a99; }
-        body { font-family: 'Poppins', sans-serif; background-color: #f8fafc; }
-        .order-card { border: none; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); margin-bottom: 25px; background: white; overflow: hidden; }
-        .order-header { background: #f8fafc; padding: 15px 25px; border-bottom: 1px solid #edf2f7; }
+        :root { --primary: #00a699; --bg: #f8fafc; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg); }
         
-        /* Tracker Style */
-        .order-track { margin: 20px 0; display: flex; justify-content: space-between; position: relative; }
-        .track-step { font-size: 0.75rem; text-align: center; flex: 1; position: relative; z-index: 1; }
-        .track-step::before { content: ''; height: 4px; width: 100%; background: #e2e8f0; position: absolute; top: 10px; left: -50%; z-index: -1; }
+        .order-card { border: none; border-radius: 25px; background: white; box-shadow: 0 10px 30px rgba(0,0,0,0.05); overflow: hidden; margin-bottom: 30px; }
+        .order-header { background: #f1f5f9; padding: 20px 30px; border-bottom: 1px solid #e2e8f0; }
+        
+        /* Status Tracker Styling */
+        .track-container { display: flex; justify-content: space-between; padding: 30px 0; position: relative; }
+        .track-step { flex: 1; text-align: center; position: relative; z-index: 1; }
+        .track-step::before { content: ""; position: absolute; top: 15px; left: -50%; width: 100%; height: 3px; background: #e2e8f0; z-index: -1; }
         .track-step:first-child::before { display: none; }
-        .track-dot { width: 20px; height: 20px; background: #cbd5e1; border-radius: 50%; display: inline-block; margin-bottom: 5px; border: 3px solid white; }
         
-        .active .track-dot { background: var(--primary-color); box-shadow: 0 0 0 4px rgba(0,166,153,0.1); }
-        .active .track-text { color: var(--primary-color); font-weight: 600; }
-        .active::before { background: var(--primary-color) !important; }
+        .step-icon { width: 35px; height: 35px; border-radius: 50%; background: #cbd5e1; border: 4px solid white; display: inline-block; margin-bottom: 8px; transition: 0.3s; }
+        .track-step.active .step-icon { background: var(--primary); box-shadow: 0 0 15px rgba(0, 166, 153, 0.3); }
+        .track-step.active .step-label { color: var(--primary); font-weight: 700; }
+        .track-step.active::before { background: var(--primary); }
+
+        .medicine-list { background: #fdfdfd; border-radius: 15px; padding: 15px; border: 1px dashed #ddd; }
+        .btn-action { border-radius: 12px; font-weight: 600; font-size: 0.85rem; padding: 10px 20px; transition: 0.3s; }
     </style>
 </head>
 <body>
 
 <div class="container py-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold text-dark"><i class="bi bi-bag-check-fill text-primary me-2"></i>My Orders</h2>
-        <a href="/" class="btn btn-outline-primary rounded-pill btn-sm">← Back to Shop</a>
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <h2 class="fw-bold"><i class="bi bi-bag-heart-fill text-primary me-2"></i> My Order History</h2>
+        <a href="/" class="btn btn-outline-dark rounded-pill px-4">← Back to Shop</a>
     </div>
 
     {% if orders %}
         {% for order in orders %}
         <div class="order-card shadow-sm">
+            <!-- Header: Order Info -->
             <div class="order-header d-flex justify-content-between align-items-center">
                 <div>
-                    <span class="text-muted small">ORDER ID:</span>
-                    <span class="fw-bold">#MK-{{ order.id }}</span>
+                    <span class="text-muted small fw-bold">ORDER ID:</span>
+                    <span class="text-primary fw-bold ms-1">#MK-{{ order.id }}</span>
                 </div>
-                <div class="text-end">
-                    <span class="text-muted small">TOTAL:</span>
-                    <span class="fw-bold text-primary">₹{{ order.total_amount }}</span>
-                </div>
-            </div>
-           <!-- Inside the orders loop in orders.html -->
-<div class="p-4">
-    <div class="row">
-        <div class="col-md-8">
-            <h6 class="fw-bold mb-1">Medicines:</h6>
-            <p class="text-primary small mb-3">{{ order.medicines_ordered }}</p>
-            
-<div class="order-card shadow-sm border-0 mb-4">
-    <div class="order-header d-flex justify-content-between align-items-center bg-light p-3">
-        <div>
-            <span class="text-muted small">ORDER ID:</span>
-            <span class="fw-bold">#MK-{{ order.id }}</span>
-        </div>
-        <div class="text-end">
-            <span class="badge {% if order.verification_status == 'Delivered' %}bg-success{% else %}bg-warning text-dark{% endif %} rounded-pill">
-                {{ order.verification_status }}
-            </span>
-        </div>
-    </div>
-
-    <div class="p-4">
-        <div class="row align-items-center">
-            <div class="col-md-7">
-                <h6 class="fw-bold mb-1">Medicines Ordered:</h6>
-                <p class="text-primary small mb-0">{{ order.medicines_ordered }}</p>
-                <hr>
-                <p class="small text-muted mb-0"><i class="bi bi-geo-alt-fill me-1"></i> {{ order.address }}</p>
-            </div>
-            
-            <div class="col-md-5 text-md-end mt-3 mt-md-0">
-                <h5 class="fw-bold text-dark mb-3">₹{{ order.total_amount }}</h5>
-                
-                <div class="d-grid gap-2 d-md-block">
-                    <!-- --- MUKKIYAMANA TRACKING BUTTON INGA IRUKKU --- -->
-                    <a href="{{ url_for('track_order', order_id=order.id) }}" class="btn btn-success rounded-pill px-4 fw-bold shadow-sm">
-                        <i class="bi bi-truck me-2"></i>Track Live Order
-                    </a>
-                    
-                    <a href="{{ url_for('download_invoice', order_id=order.id) }}" class="btn btn-outline-secondary btn-sm rounded-pill mt-2">
-                        <i class="bi bi-file-earmark-pdf"></i> Invoice
-                    </a>
+                <div>
+                    <span class="text-muted small fw-bold text-uppercase">Total Amount:</span>
+                    <span class="h5 fw-bold ms-2 mb-0">₹{{ order.total_amount }}</span>
                 </div>
             </div>
-        </div>
-    </div>
-</div>
-
-            <!-- Tracking Timeline logic ... -->
-        </div>
-        
-        <div class="col-md-4 text-end">
-            <div class="d-grid gap-2">
-                <a href="{{ url_for('download_invoice', order_id=order.id) }}" class="btn btn-sm btn-light border">Download Invoice</a>
-                <!-- Cancel Button -->
-                <a href="{{ url_for('cancel_order', id=order.id) }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Intha order-ah cancel pannalaama?')">Cancel Order</a>
-            </div>
-        </div>
-    </div>
-</div> 
-
-<!-- Inside orders loop in orders.html -->
-<div class="order-track">
-    <!-- Step 1: Ordered (Always Active) -->
-    <div class="track-step active">
-        <span class="track-dot"></span>
-        <div class="track-text">Ordered</div>
-    </div>
-
-    <!-- Step 2: Verified (Active if Approved, Packing or Delivered) -->
-    <div class="track-step {% if order.verification_status in ['Approved', 'Packing', 'Delivered'] %}active{% endif %}">
-        <span class="track-dot"></span>
-        <div class="track-text">AI Verified</div>
-    </div>
-
-    <!-- Step 3: Packing (Active if Packing or Delivered) -->
-    <div class="track-step {% if order.verification_status in ['Packing', 'Delivered'] %}active{% endif %}">
-        <span class="track-dot"></span>
-        <div class="track-text">Packing</div>
-    </div>
-
-    <!-- Step 4: Delivered (Active ONLY if status is Delivered) -->
-    <div class="track-step {% if order.verification_status == 'Delivered' %}active{% endif %}">
-        <span class="track-dot"></span>
-        <div class="track-text">Delivered</div>
-    </div>
-</div>
-
 
             <div class="p-4">
-                <div class="row align-items-center">
-                    <div class="col-md-8">
-                        <!-- Order Tracking Timeline (Now inside the loop) -->
-                        <div class="order-track">
-                            <div class="track-step active">
-                                <span class="track-dot"></span>
-                                <div class="track-text">Ordered</div>
-                            </div>
-                            <div class="track-step {% if order.verification_status == 'Approved' %}active{% endif %}">
-                                <span class="track-dot"></span>
-                                <div class="track-text">AI Verified</div>
-                            </div>
-                            <div class="track-step">
-                                <span class="track-dot"></span>
-                                <div class="track-text">Packing</div>
-                            </div>
-                            <div class="track-step">
-                                <span class="track-dot"></span>
-                                <div class="track-text">Delivered</div>
-                            </div>
+                <div class="row g-4">
+                    <!-- Column 1: Items & Address -->
+                    <div class="col-lg-7">
+                        <h6 class="fw-bold mb-3"><i class="bi bi-capsule me-2"></i>Medicines Ordered:</h6>
+                        <div class="medicine-list mb-4">
+                            <p class="mb-0 text-dark small">{{ order.medicines_ordered }}</p>
                         </div>
                         
-                        <p class="small text-muted mt-3">
-                            <i class="bi bi-geo-alt-fill me-1"></i> Delivery to: {{ order.address }}
-                        </p>
+                        <h6 class="fw-bold mb-2 small text-muted text-uppercase">Delivery Address:</h6>
+                        <p class="small"><i class="bi bi-geo-alt-fill text-danger me-1"></i> {{ order.address }}</p>
                     </div>
-                    
-                    <div class="col-md-4 text-md-end">
-                        <div class="d-grid gap-2">
-                            <a href="{{ url_for('download_invoice', order_id=order.id) }}" class="btn btn-light btn-sm rounded-pill fw-bold border">
-                                <i class="bi bi-file-earmark-pdf me-1"></i> Download Invoice
+
+                    <!-- Column 2: Status & Buttons -->
+                    <div class="col-lg-5 border-start ps-lg-5">
+                        <h6 class="fw-bold mb-4 text-center">Current Status: <span class="badge bg-info text-dark rounded-pill">{{ order.verification_status }}</span></h6>
+                        
+                        <!-- ONE Unified Tracker -->
+                        <div class="track-container">
+                            <div class="track-step active">
+                                <div class="step-icon"></div>
+                                <div class="step-label small d-block">Ordered</div>
+                            </div>
+                            <div class="track-step {% if order.verification_status in ['Approved', 'Packing', 'Delivered'] %}active{% endif %}">
+                                <div class="step-icon"></div>
+                                <div class="step-label small d-block">AI Verified</div>
+                            </div>
+                            <div class="track-step {% if order.verification_status in ['Packing', 'Delivered'] %}active{% endif %}">
+                                <div class="step-icon"></div>
+                                <div class="step-label small d-block">Packing</div>
+                            </div>
+                            <div class="track-step {% if order.verification_status == 'Delivered' %}active{% endif %}">
+                                <div class="step-icon"></div>
+                                <div class="step-label small d-block">Delivered</div>
+                            </div>
+                        </div>
+
+                        <!-- Single Action Buttons Group -->
+                        <div class="d-grid gap-2 mt-4">
+                            <a href="{{ url_for('track_order', order_id=order.id) }}" class="btn btn-success btn-action shadow-sm">
+                                <i class="bi bi-truck me-2"></i>Track Live Order
                             </a>
-                            <!-- Line 63 in orders.html -->
-<a href="{{ url_for('cancel_order', id=order.id) }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Intha order-ah cancel pannalaama?')">
-   Cancel Order
-</a>
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <a href="{{ url_for('download_invoice', order_id=order.id) }}" class="btn btn-outline-dark btn-action w-100">
+                                        <i class="bi bi-file-earmark-pdf"></i> Invoice
+                                    </a>
+                                </div>
+                                <div class="col-6">
+                                    <a href="{{ url_for('cancel_order', id=order.id) }}" class="btn btn-outline-danger btn-action w-100" onclick="return confirm('Cancel this order?')">
+                                        Cancel
+                                    </a>
+                                </div>
+                            </div>
                             {% if order.prescription_file %}
-                            <a href="{{ url_for('static', filename='uploads/' + order.prescription_file) }}" target="_blank" class="btn btn-outline-info btn-sm rounded-pill">
-                                <i class="bi bi-eye me-1"></i> View Prescription
+                            <a href="{{ url_for('static', filename='uploads/' + order.prescription_file) }}" target="_blank" class="btn btn-light btn-sm mt-2 border">
+                                <i class="bi bi-eye"></i> View Uploaded Doc
                             </a>
                             {% endif %}
                         </div>
@@ -186,7 +122,7 @@
         <div class="text-center py-5">
             <i class="bi bi-cart-x display-1 text-muted"></i>
             <h4 class="mt-3">No orders placed yet.</h4>
-            <a href="/" class="btn btn-primary mt-3 px-4 rounded-pill">Shop Medicines Now</a>
+            <a href="/" class="btn btn-primary mt-3 rounded-pill px-4 py-2">Start Shopping</a>
         </div>
     {% endif %}
 </div>

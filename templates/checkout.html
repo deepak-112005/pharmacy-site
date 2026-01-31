@@ -3,254 +3,180 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Secure Checkout - Medi kart</title>
-    <!-- Bootstrap 5 & Google Fonts -->
+    <title>Checkout | Medi kart Secure Payment</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
 
     <style>
-        :root {
-            --primary-color: #00a699; /* Medical Teal */
-            --secondary-color: #004a99; /* Deep Blue */
-            --bg-light: #f8fafc;
-        }
+        :root { --primary-teal: #00a699; --deep-navy: #002b5c; --bg-soft: #f8fafc; }
+        body { background-color: var(--bg-soft); font-family: 'Plus Jakarta Sans', sans-serif; }
 
-        body {
-            font-family: 'Poppins', sans-serif;
-            background-color: var(--bg-light);
-        }
+        /* Stepper Progress UI */
+        .stepper { display: flex; justify-content: space-between; margin-bottom: 40px; position: relative; }
+        .step { text-align: center; flex: 1; z-index: 1; }
+        .step-icon { width: 40px; height: 40px; border-radius: 50%; background: white; border: 2px solid #ddd; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; font-weight: bold; transition: 0.3s; }
+        .step.active .step-icon { background: var(--primary-teal); border-color: var(--primary-teal); color: white; box-shadow: 0 0 15px rgba(0, 166, 153, 0.3); }
+        .step.active .step-label { color: var(--deep-navy); font-weight: 700; }
+        .stepper::after { content: ''; position: absolute; top: 20px; left: 10%; right: 10%; height: 2px; background: #ddd; z-index: 0; }
 
-        .checkout-header {
-            background: linear-gradient(90deg, var(--secondary-color), var(--primary-color));
-            color: white;
-            padding: 40px 0;
-            border-radius: 0 0 30px 30px;
-            margin-bottom: 40px;
-        }
+        /* Unique Prescription Area */
+        .prescription-box { border: 2px dashed #cbd5e1; border-radius: 20px; padding: 30px; text-align: center; background: #fff; transition: 0.3s; cursor: pointer; }
+        .prescription-box:hover { border-color: var(--primary-teal); background: #f0fdfa; }
 
-        .card {
-            border: none;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-        }
+        /* Payment Selection Cards */
+        .payment-card { border: 2px solid #edf2f7; border-radius: 18px; padding: 15px; cursor: pointer; transition: 0.3s; position: relative; }
+        .payment-card:hover { border-color: var(--primary-teal); transform: translateY(-3px); }
+        input[type="radio"]:checked + .payment-card { border-color: var(--primary-teal); background: #f0fdfa; }
+        .check-dot { position: absolute; top: 10px; right: 10px; width: 10px; height: 10px; border-radius: 50%; background: #ddd; }
+        input[type="radio"]:checked + .payment-card .check-dot { background: var(--primary-teal); }
 
-        .form-label {
-            font-weight: 600;
-            font-size: 0.9rem;
-            color: #444;
-        }
+        /* Summary Sidebar */
+        .summary-card { background: white; border-radius: 25px; border: none; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); position: sticky; top: 100px; }
+        .medicine-item { border-bottom: 1px dashed #eee; padding: 10px 0; font-size: 0.85rem; }
 
-        .form-control {
-            border-radius: 12px;
-            padding: 12px;
-            border: 1px solid #e2e8f0;
-            background-color: #fff;
-        }
-
-        .form-control:focus {
-            box-shadow: 0 0 0 3px rgba(0, 166, 153, 0.1);
-            border-color: var(--primary-color);
-        }
-
-        .order-summary {
-            background-color: white;
-            position: sticky;
-            top: 20px;
-        }
-
-        .product-item {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 1px dashed #eee;
-        }
-
-        .btn-confirm {
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 15px;
-            border-radius: 15px;
-            font-weight: 700;
-            font-size: 1.1rem;
-            transition: 0.3s;
-        }
-
-        .btn-confirm:hover {
-            background-color: #00897b;
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(0, 166, 153, 0.2);
-        }
-
-        .step-badge {
-            width: 30px;
-            height: 30px;
-            background: rgba(255,255,255,0.2);
-            border-radius: 50%;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 10px;
-            font-size: 0.8rem;
-        }
-
-        .payment-option {
-            border: 2px solid #f1f5f9;
-            border-radius: 15px;
-            padding: 15px;
-            cursor: pointer;
-            transition: 0.3s;
-            display: block;
-        }
-
-        .payment-option:hover {
-            border-color: var(--primary-color);
-            background-color: #f0fdfa;
-        }
-
-        input[type="radio"]:checked + .payment-option {
-            border-color: var(--primary-color);
-            background-color: #f0fdfa;
-        }
+        .form-control { border-radius: 12px; padding: 12px; border: 2px solid #edf2f7; }
+        .form-control:focus { border-color: var(--primary-teal); box-shadow: none; }
+        .btn-pay { background: var(--deep-navy); color: white; border-radius: 15px; padding: 15px; font-weight: 700; border: none; transition: 0.3s; }
+        .btn-pay:hover { background: var(--primary-teal); transform: scale(1.02); }
     </style>
 </head>
 <body>
 
-<div class="checkout-header shadow">
-    <div class="container text-center">
-        <h2 class="fw-bold mb-2"><i class="bi bi-shield-check me-2"></i>Secure Checkout</h2>
-        <p class="mb-0 opacity-75">Complete your order to get your medicines delivered</p>
+<div class="container py-5">
+    <!-- Header -->
+    <div class="text-center mb-5">
+        <h2 class="fw-bold"><i class="bi bi-shield-lock-fill text-success"></i> Secure Checkout</h2>
+        <p class="text-muted">Review your order and document verification</p>
     </div>
-</div>
 
-<div class="container mb-5">
-    <div class="row g-4">
-        <!-- Left Side: Shipping & Prescription -->
-        <div class="col-lg-8">
-            <form action="/checkout" method="POST" enctype="multipart/form-data">
+    <!-- Stepper Tracker -->
+    <div class="stepper">
+        <div class="step active"><div class="step-icon">1</div><div class="step-label small">Shipping</div></div>
+        <div class="step active"><div class="step-icon">2</div><div class="step-label small">Prescription</div></div>
+        <div class="step"><div class="step-icon">3</div><div class="step-label small">Payment</div></div>
+    </div>
+
+    <form action="/checkout" method="POST" enctype="multipart/form-data">
+        <div class="row g-5">
+            <!-- Left Side: Forms -->
+            <div class="col-lg-8">
                 
                 <!-- Section 1: Address -->
-                <div class="card p-4 mb-4">
-                    <h5 class="fw-bold mb-4"><span class="step-badge">1</span>Shipping Information</h5>
+                <div class="bg-white p-4 rounded-4 shadow-sm mb-4">
+                    <h5 class="fw-bold mb-4"><i class="bi bi-geo-alt me-2 text-primary"></i> Delivery Address</h5>
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="form-label">Full Name</label>
-                            <input type="text" name="name" class="form-control" placeholder="Ex: Rahul Kumar" required>
+                            <label class="small fw-bold mb-1">Receiver Name</label>
+                            <input type="text" name="name" class="form-control" placeholder="Enter Full Name" required>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Phone Number</label>
-                            <input type="tel" name="phone" class="form-control" placeholder="10-digit mobile number" required>
+                            <label class="small fw-bold mb-1">Emergency Phone</label>
+                            <input type="tel" name="phone" class="form-control" placeholder="10 Digit Number" required>
                         </div>
                         <div class="col-12">
-                            <label class="form-label">Delivery Address</label>
-                            <textarea name="address" class="form-control" rows="3" placeholder="Door No, Street Name, Area, City & Pincode" required></textarea>
+                            <label class="small fw-bold mb-1">Full Shipping Address</label>
+                            <textarea name="address" class="form-control" rows="3" placeholder="Door No, Street, City, Pincode" required></textarea>
                         </div>
                     </div>
                 </div>
 
-                <!-- Section 2: Prescription Upload -->
-                <div class="card p-4 mb-4 border-warning" style="border-left: 5px solid #ffc107 !important;">
-                    <div class="d-flex align-items-center mb-3">
-                        <h5 class="fw-bold mb-0"><span class="step-badge text-dark" style="background: #ffc107;">2</span>Upload Prescription</h5>
-                        <span class="ms-auto badge bg-warning text-dark">Required for AI Check</span>
+                <!-- Section 2: Prescription (The Unique Part) -->
+                <div class="bg-white p-4 rounded-4 shadow-sm mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="fw-bold mb-0"><i class="bi bi-file-earmark-medical me-2 text-danger"></i> Prescription Required</h5>
+                        <span class="badge bg-danger-soft text-danger border border-danger rounded-pill px-3 py-2" style="font-size: 0.7rem;">MANDATORY FOR MEDICINES</span>
                     </div>
-                    <p class="small text-muted mb-3">Doctor prescription photo upload panna AI verify pannum.</p>
-                    <input type="file" name="prescription" class="form-control" accept="image/*,.pdf" required>
+                    <div class="prescription-box" onclick="document.getElementById('p_file').click()">
+                        <i class="bi bi-cloud-arrow-up fs-1 text-primary"></i>
+                        <h6 class="fw-bold mt-2">Upload or Drag Prescription</h6>
+                        <p class="small text-muted mb-0">PDF, PNG, JPG allowed. Our Pharmacist will verify this.</p>
+                        <input type="file" name="prescription" id="p_file" class="d-none" onchange="showFileName(this)" required>
+                        <div id="file-name" class="mt-2 fw-bold text-success small"></div>
+                    </div>
                 </div>
 
-                <!-- Section 3: Payment -->
-                <div class="card p-4 mb-4">
-                    <h5 class="fw-bold mb-4"><span class="step-badge">3</span>Payment Method</h5>
+                <!-- Section 3: Payment Selection -->
+                <div class="bg-white p-4 rounded-4 shadow-sm mb-4">
+                    <h5 class="fw-bold mb-4"><i class="bi bi-credit-card me-2 text-success"></i> Payment Method</h5>
                     <div class="row g-3">
-                        <div class="col-md-6">
-                            <input type="radio" class="btn-check" name="payment" id="cod" value="COD" checked>
-                            <label class="payment-option text-center" for="cod">
-                                <i class="bi bi-cash-coin display-6 d-block mb-2 text-primary"></i>
-                                <span class="fw-bold">Cash on Delivery</span>
+                        <div class="col-md-4">
+                            <input type="radio" name="payment" id="pay_upi" value="UPI" class="d-none">
+                            <label class="payment-card w-100" for="pay_upi">
+                                <span class="check-dot"></span>
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/e/e1/UPI-Logo-vector.svg" height="20" class="mb-2">
+                                <div class="fw-bold small">UPI / PhonePe</div>
                             </label>
                         </div>
-                        
-                    </div>
-                </div>
-
-                <button type="submit" class="btn btn-confirm w-100 shadow">
-                    Place Order (Total: ₹{{ total }})
-                </button>
-            </form>
-        </div>
-<div class="card p-4 mb-4">
-    <h5 class="fw-bold mb-4">Select Payment Method</h5>
-    <div class="row g-3">
-        <!-- UPI Option -->
-        <div class="col-md-4">
-            <input type="radio" class="btn-check" name="payment" id="upi" value="UPI">
-            <label class="payment-option text-center" for="upi">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/e/e1/UPI-Logo-vector.svg" height="30" class="mb-2 d-block mx-auto">
-                <span class="fw-bold">UPI / PhonePe</span>
-            </label>
-        </div>
-        <!-- GPay Option -->
-        <div class="col-md-4">
-            <input type="radio" class="btn-check" name="payment" id="gpay" value="GPay">
-            <label class="payment-option text-center" for="gpay">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/c/c7/Google_Pay_Logo.svg" height="30" class="mb-2 d-block mx-auto">
-                <span class="fw-bold">Google Pay</span>
-            </label>
-        </div>
-        <!-- COD Option -->
-        <div class="col-md-4">
-            <input type="radio" class="btn-check" name="payment" id="cod" value="COD" checked>
-            <label class="payment-option text-center" for="cod">
-                <i class="bi bi-cash fs-3 d-block text-success"></i>
-                <span class="fw-bold">Cash on Delivery</span>
-            </label>
-        </div>
-    </div>
-</div>
-        <!-- Right Side: Order Summary -->
-        <div class="col-lg-4">
-            <div class="card order-summary p-4 shadow">
-                <h5 class="fw-bold mb-4">Order Summary</h5>
-                <div class="mb-4">
-                    {% for product in products %}
-                    <div class="product-item">
-                        <div>
-                            <p class="mb-0 fw-bold small">{{ product.name }}</p>
-                            <small class="text-muted">{{ product.category.name }}</small>
+                        <div class="col-md-4">
+                            <input type="radio" name="payment" id="pay_gpay" value="GPay" class="d-none">
+                            <label class="payment-card w-100" for="pay_gpay">
+                                <span class="check-dot"></span>
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/c/c7/Google_Pay_Logo.svg" height="20" class="mb-2">
+                                <div class="fw-bold small">Google Pay</div>
+                            </label>
                         </div>
-                        <span class="fw-bold small">₹{{ product.price }}</span>
+                        <div class="col-md-4">
+                            <input type="radio" name="payment" id="pay_cod" value="COD" class="d-none" checked>
+                            <label class="payment-card w-100" for="pay_cod">
+                                <span class="check-dot"></span>
+                                <i class="bi bi-cash-stack fs-4 text-success d-block mb-1"></i>
+                                <div class="fw-bold small">Cash on Delivery</div>
+                            </label>
+                        </div>
                     </div>
-                    {% endfor %}
                 </div>
 
-                <div class="d-flex justify-content-between mb-2">
-                    <span class="text-muted">Subtotal</span>
-                    <span>₹{{ total }}</span>
+                <button type="submit" class="btn btn-pay w-100 shadow-lg">CONFIRM ORDER & UPLOAD DOCUMENTS</button>
+            </div>
+
+            <!-- Right Side: Order Summary Card -->
+            <div class="col-lg-4">
+                <div class="summary-card">
+                    <h6 class="fw-bold mb-3">Order Summary</h6>
+                    <div class="mb-4">
+                        {% for product in products %}
+                        <div class="medicine-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="fw-bold">{{ product.name }}</div>
+                                <div class="text-muted extra-small">Qty: 1</div>
+                            </div>
+                            <div class="fw-bold text-primary">₹{{ product.price }}</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted small">Subtotal</span>
+                        <span class="fw-bold small">₹{{ total }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted small">Delivery Fee</span>
+                        <span class="text-success fw-bold small">FREE</span>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="fw-bold mb-0">Total Pay</h5>
+                        <h4 class="fw-bold text-primary mb-0">₹{{ total }}</h4>
+                    </div>
+
+                    <div class="p-3 bg-light rounded-4 text-center">
+                        <img src="https://www.netmeds.com/assets/gloryweb/images/icons/trust_badges.png" class="img-fluid opacity-75">
+                        <p class="extra-small text-muted mt-2 mb-0"><i class="bi bi-shield-check-fill text-success"></i> 100% Safe & Secure Payment</p>
+                    </div>
                 </div>
-                <div class="d-flex justify-content-between mb-4">
-                    <span class="text-muted">Delivery Charges</span>
-                    <span class="text-success">FREE</span>
-                </div>
-                <hr>
-                <div class="d-flex justify-content-between mb-4">
-                    <h5 class="fw-bold text-dark">Total Amount</h5>
-                    <h5 class="fw-bold text-primary">₹{{ total }}</h5>
-                </div>
-                
-                <div class="p-3 bg-light rounded-3">
-                    <p class="small text-muted mb-0 text-center">
-                        <i class="bi bi-shield-lock-fill text-success me-1"></i> 
-                        100% Safe & Secure Payments
-                    </p>
-                </div>
-                <a href="/cart" class="btn btn-link w-100 text-decoration-none mt-2 small">← Edit Cart</a>
             </div>
         </div>
-    </div>
+    </form>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function showFileName(input) {
+        const name = input.files[0].name;
+        document.getElementById('file-name').innerHTML = `<i class="bi bi-file-check-fill"></i> Selected: ${name}`;
+    }
+</script>
+
 </body>
 </html>
