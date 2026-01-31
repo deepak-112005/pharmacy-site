@@ -354,6 +354,22 @@ def track_order(order_id):
     user_coords = [user_lat, user_lng]
     
     return render_template('track.html', order=order, pharmacy=pharmacy_coords, user=user_coords)
+
+@app.route('/hospitals-near-me')
+@login_required
+def hospitals_near_me():
+    # User-oda location-ah edukkurom
+    user_lat = float(current_user.lat) if current_user.lat else 13.0827
+    user_lng = float(current_user.lng) if current_user.lng else 80.2707
+    user_coords = [user_lat, user_lng]
+    
+    # Pharmacy location (Default)
+    pharmacy_coords = [13.0827, 80.2707] 
+
+    # Order=None nu kudukkurthom, ஏன்னா idhu general hospital search
+    return render_template('track.html', order=None, pharmacy=pharmacy_coords, user=user_coords)
+
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
