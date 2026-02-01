@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Medi kart | Your Premium Health Super App</title>
+    <title>Medi kart | The Future of Online Pharmacy</title>
 
     <!-- Google Fonts & Modern Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet">
@@ -29,68 +29,54 @@
         body { 
             background-color: var(--bg-light); 
             font-family: 'Plus Jakarta Sans', sans-serif;
-            color: #2d3436;
             transition: 0.3s ease;
         }
 
-        /* Navbar & Glass Header */
-        .navbar { background: var(--glass) !important; backdrop-filter: blur(15px); border-bottom: 1px solid rgba(0,0,0,0.05); }
+        /* Navbar & Blur Overlay */
+        .navbar { background: var(--glass) !important; backdrop-filter: blur(15px); border-bottom: 1px solid rgba(0,0,0,0.05); z-index: 1200; }
+        .search-overlay-blur { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(8px); z-index: 1050; display: none; opacity: 0; transition: 0.3s; }
         
-        /* Hero Section */
-        .hero-section {
-            background: linear-gradient(135deg, #002b5c 0%, #0056b3 100%);
-            border-radius: 40px; padding: 80px 40px; color: white; margin-top: 30px;
-            position: relative; overflow: hidden;
-        }
-        .hero-section::before {
-            content: ''; position: absolute; right: -100px; top: -100px;
-            width: 400px; height: 400px; background: rgba(255,255,255,0.05); border-radius: 50%;
-        }
+        /* UNIQUE OMNI SEARCH BAR STYLING */
+        .omni-search-wrapper { position: relative; max-width: 750px; margin: -45px auto 40px; z-index: 1100; padding: 0 15px; }
+        .omni-search-bar { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(15px); border-radius: 25px; padding: 10px; display: flex; align-items: center; box-shadow: 0 20px 45px rgba(0, 166, 153, 0.15); border: 2px solid transparent; transition: 0.4s; }
+        .omni-search-bar:focus-within { transform: scale(1.02); background: #fff; border-color: var(--primary); box-shadow: 0 25px 50px rgba(0,0,0,0.15); }
+        .search-cat-select { border: none; background: #f1f5f9; padding: 10px 15px; border-radius: 15px; font-weight: 700; font-size: 0.8rem; outline: none; margin-right: 10px; display: none; }
+        @media (min-width: 768px) { .search-cat-select { display: block; } }
+        .omni-search-bar input { border: none; background: transparent; flex-grow: 1; padding: 10px; font-weight: 600; outline: none; }
+        .mic-icon { color: #64748b; font-size: 1.4rem; cursor: pointer; margin: 0 15px; transition: 0.3s; }
+        .mic-icon:hover { color: #ef4444; transform: scale(1.2); }
+        .search-trigger-btn { background: var(--primary); color: white; border: none; padding: 10px 30px; border-radius: 18px; font-weight: 700; transition: 0.3s; }
+        
+        /* Trending Tags */
+        .trending-wrap { display: flex; gap: 10px; margin-top: 15px; justify-content: center; flex-wrap: wrap; }
+        .trend-tag { font-size: 0.75rem; background: rgba(255,255,255,0.7); padding: 6px 16px; border-radius: 50px; color: #475569; text-decoration: none; border: 1px solid rgba(0,0,0,0.05); transition: 0.3s; }
+        .trend-tag:hover { background: var(--primary); color: white; transform: translateY(-3px); }
 
-        /* Modern Icon Categories */
-        .category-icon-box {
-            background: white; border-radius: 20px; padding: 20px; text-align: center;
-            transition: 0.3s; cursor: pointer; border: 1px solid #f1f1f1; text-decoration: none; display: block;
-        }
+        /* Hero Section */
+        .hero-section { background: linear-gradient(135deg, #002b5c 0%, #0056b3 100%); border-radius: 40px; padding: 80px 40px 120px; color: white; margin-top: 20px; position: relative; overflow: hidden; }
+
+        /* Category Icons */
+        .category-icon-box { background: white; border-radius: 20px; padding: 20px; text-align: center; transition: 0.3s; cursor: pointer; border: 1px solid #f1f1f1; text-decoration: none; display: block; }
         .category-icon-box:hover { transform: translateY(-8px); border-color: var(--primary); box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
         .category-icon-box i { font-size: 2rem; color: var(--primary); margin-bottom: 10px; display: block; }
         .category-icon-box span { font-weight: 700; font-size: 0.8rem; color: #444; text-transform: uppercase; }
 
-        /* Health & SOS UI */
-        .health-dashboard {
-            background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px);
-            border-radius: 30px; border: 1px solid rgba(255,255,255,0.2); padding: 30px;
-        }
-        .sos-btn {
-            position: fixed; bottom: 30px; left: 30px; z-index: 2000;
-            background: #ef4444; color: white; width: 65px; height: 65px;
-            border-radius: 50%; border: 5px solid white; box-shadow: 0 10px 30px rgba(239, 68, 68, 0.4);
-            display: flex; align-items: center; justify-content: center; font-size: 1.5rem; transition: 0.3s;
-        }
+        /* SOS UI */
+        .sos-btn { position: fixed; bottom: 30px; left: 30px; z-index: 2000; background: #ef4444; color: white; width: 65px; height: 65px; border-radius: 50%; border: 5px solid white; box-shadow: 0 10px 30px rgba(239, 68, 68, 0.4); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; transition: 0.3s; }
         .sos-btn:hover { transform: scale(1.1) rotate(15deg); }
 
         /* Product Cards */
-        .medicine-card {
-            background: white; border-radius: 30px; padding: 20px; border: none;
-            transition: 0.4s; height: 100%; position: relative;
-        }
+        .medicine-card { background: white; border-radius: 30px; padding: 20px; border: none; transition: 0.4s; height: 100%; position: relative; }
         .medicine-card:hover { transform: translateY(-12px); box-shadow: 0 20px 40px rgba(0,0,0,0.08); }
         .img-container { background: #f8fafc; border-radius: 20px; height: 150px; display: flex; align-items: center; justify-content: center; }
         .img-container img { max-height: 80%; object-fit: contain; }
 
-        /* Cart Notification Toast */
-        #cart-toast {
-            position: fixed; top: 100px; right: 20px; z-index: 9999;
-            background: var(--secondary); color: white; padding: 15px 30px;
-            border-radius: 20px; display: none; animation: slideIn 0.5s ease;
-        }
-        @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
-
-        /* Trust Badges */
-        .trust-badge { display: flex; align-items: center; gap: 15px; padding: 20px; background: white; border-radius: 20px; }
+        #cart-toast { position: fixed; top: 100px; right: 20px; z-index: 9999; background: var(--secondary); color: white; padding: 15px 30px; border-radius: 20px; display: none; }
     </style>
 </head>
 <body>
+
+<div id="searchBlur" class="search-overlay-blur" onclick="closeSearch()"></div>
 
 <!-- Navbar -->
 <nav class="navbar navbar-expand-lg sticky-top">
@@ -98,11 +84,9 @@
         <a class="navbar-brand fw-bold fs-3" href="/">
             <i class="bi bi-capsule-pill text-primary me-2"></i>Medi<span style="color:var(--secondary)">kart</span>
         </a>
-
         <div class="d-flex align-items-center gap-3 ms-auto">
             <button class="btn btn-link text-dark p-0" onclick="toggleTheme()"><i class="bi bi-moon-stars-fill fs-5" id="themeIcon"></i></button>
             <div class="bg-light px-3 py-1 rounded-pill border small fw-bold" id="langBtn" onclick="toggleLang()" style="cursor:pointer">EN | தமிழ்</div>
-            
             <a href="/cart" class="btn btn-warning rounded-pill px-4 position-relative">
                 <i class="bi bi-bag-heart-fill"></i>
                 <span id="cart-count-badge" class="badge bg-danger rounded-pill">{{ session['cart']|length if session['cart'] else 0 }}</span>
@@ -112,108 +96,51 @@
 </nav>
 
 <main class="container">
-    
     <!-- Hero Section -->
-    <div class="hero-section shadow-lg" data-aos="fade-up">
-        <div class="row align-items-center">
-            <div class="col-lg-7">
-                <span class="badge bg-warning text-dark mb-3 px-3 py-2 rounded-pill fw-bold">#1 TRUSTED PHARMACY</span>
-                <h1 class="display-3 fw-bold mb-3" id="heroTitle">Your Health, <br><span style="color:var(--primary)">Delivered Daily.</span></h1>
-                <p class="lead opacity-75 mb-4" id="heroSub">Genuine medicines, digital health scans, and emergency care at your fingertips.</p>
-                <div class="row g-2">
-                    <div class="col-md-8">
-                        <div class="input-group">
-                            <span class="input-group-text bg-white border-0 rounded-start-pill ps-4"><i class="bi bi-search text-muted"></i></span>
-                            <input type="text" class="form-control border-0 py-3 rounded-end-pill" placeholder="Search medicines or brands...">
-                        </div>
-                    </div>
+    <div class="hero-section shadow-lg text-center" data-aos="fade-up">
+        <span class="badge bg-warning text-dark mb-3 px-4 py-2 rounded-pill fw-bold shadow-sm">#1 TRUSTED HEALTH APP</span>
+        <h1 class="display-3 fw-bold mb-2" id="heroTitle">Your Health, <br><span style="color:var(--primary)">Delivered Daily.</span></h1>
+        <p class="lead opacity-75 mb-0" id="heroSub">Genuine medicines & health scans at your fingertips.</p>
+    </div>
+
+    <!-- OMNI SEARCH BAR -->
+    <div class="omni-search-wrapper" data-aos="zoom-in" data-aos-delay="200">
+        <form action="/" method="GET" id="searchForm">
+            <div class="omni-search-bar">
+                <select class="search-cat-select" name="cat">
+                    <option value="">All Meds</option>
+                    {% for cat in categories %}
+                    <option value="{{ cat.id }}">{{ cat.name }}</option>
+                    {% endfor %}
+                </select>
+                <input type="text" name="q" id="omniInput" placeholder="Search for Dolo, Vitamins, or Brands..." onfocus="openSearch()" autocomplete="off">
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-mic mic-icon" id="voiceTrigger" title="Voice Search"></i>
+                    <button type="submit" class="search-trigger-btn">Find</button>
                 </div>
             </div>
-            <div class="col-lg-5 d-none d-lg-block text-center">
-                <img src="https://cdni.iconscout.com/illustration/premium/thumb/online-pharmacy-store-illustration-download-in-svg-png-gif-file-formats--medical-medicine-healthcare-pack-illustrations-5201479.png" class="img-fluid" style="filter: drop-shadow(0 20px 40px rgba(0,0,0,0.2));">
-            </div>
+        </form>
+        <div class="trending-wrap">
+            <span class="small text-muted me-2">Trending:</span>
+            <a href="/?q=Dolo" class="trend-tag">Dolo 650</a>
+            <a href="/?q=Vitamin" class="trend-tag">Vitamin C</a>
+            <a href="/?q=Baby" class="trend-tag">Baby Care</a>
         </div>
     </div>
 
     <!-- Category Icons Section -->
-    <div class="row g-4 my-5" data-aos="fade-up">
-        <div class="col-6 col-md-2">
-            <a href="/?cat=1" class="category-icon-box">
-                <i class="bi bi-capsule"></i>
-                <span>Medicines</span>
-            </a>
-        </div>
-        <div class="col-6 col-md-2">
-            <a href="/?cat=2" class="category-icon-box">
-                <i class="bi bi-heart-pulse"></i>
-                <span>Baby Care</span>
-            </a>
-        </div>
-        <div class="col-6 col-md-2">
-            <a href="/?cat=3" class="category-icon-box">
-                <i class="bi bi-activity"></i>
-                <span>Wellness</span>
-            </a>
-        </div>
-        <div class="col-6 col-md-2">
-            <a href="/?cat=4" class="category-icon-box">
-                <i class="bi bi-droplet"></i>
-                <span>Personal Care</span>
-            </a>
-        </div>
-      <div class="col-6 col-md-2">
-    <!-- Link-ah hospitals-near-me route-ku kudunga -->
-    <a href="/hospitals-near-me" class="category-icon-box" style="border-color: var(--primary); text-decoration: none;">
-        <i class="bi bi-geo-alt-fill" style="color: var(--primary);"></i>
-        <span style="color: var(--primary);">Hospitals</span>
-    </a>
-</div>
-      <div class="col-6 col-md-2">
-    <!-- Analysis-ku badhula idhai use pannunga -->
-    <div class="category-icon-box" data-bs-toggle="modal" data-bs-target="#healthScanModal" style="cursor:pointer; border-color: #0066ff;">
-        <i class="bi bi-speedometer2" style="color: #0066ff;"></i>
-        <span style="color: #0066ff;">Health Scan</span>
-    </div>
-</div>
-        </div>
+    <div class="row g-4 mb-5" data-aos="fade-up">
+        <div class="col-6 col-md-2"><a href="/?cat=1" class="category-icon-box"><i class="bi bi-capsule"></i><span>Medicines</span></a></div>
+        <div class="col-6 col-md-2"><a href="/?cat=2" class="category-icon-box"><i class="bi bi-heart-pulse"></i><span>Baby Care</span></a></div>
+        <div class="col-6 col-md-2"><a href="/?cat=3" class="category-icon-box"><i class="bi bi-activity"></i><span>Wellness</span></a></div>
+        <div class="col-6 col-md-2"><a href="/?cat=4" class="category-icon-box"><i class="bi bi-droplet"></i><span>Personal Care</span></a></div>
+        <div class="col-6 col-md-2"><a href="/hospitals-near-me" class="category-icon-box" style="border-color: var(--primary);"><i class="bi bi-geo-alt-fill"></i><span>Hospitals</span></a></div>
+        <div class="col-6 col-md-2"><div class="category-icon-box" data-bs-toggle="modal" data-bs-target="#healthScanModal" style="border-color: #0066ff;"><i class="bi bi-speedometer2" style="color:#0066ff"></i><span style="color:#0066ff">Health Scan</span></div></div>
     </div>
 
-   <!-- Health Scan Popup (Modal) -->
-<div class="modal fade" id="healthScanModal" tabindex="-1">
-    <div class="modal-dialog modal-sm modal-dialog-centered">
-        <!-- Unga image-la irukara blue theme style -->
-        <div class="modal-content border-0 rounded-5 shadow-lg overflow-hidden" style="background: #0066ff;">
-            <div class="modal-body p-4 text-white">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="fw-bold mb-0"><i class="bi bi-speedometer2 me-2"></i>Health Scan</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-
-                <div class="mb-2">
-                    <label class="small fw-bold mb-1 opacity-75">Height (cm)</label>
-                    <input type="number" id="hgt" class="form-control bg-white bg-opacity-25 border-0 text-white py-2" placeholder="170">
-                </div>
-
-                <div class="mb-4">
-                    <label class="small fw-bold mb-1 opacity-75">Weight (kg)</label>
-                    <input type="number" id="wgt" class="form-control bg-white bg-opacity-25 border-0 text-white py-2" placeholder="65">
-                </div>
-
-                <button class="btn btn-white w-100 rounded-pill fw-bold py-2 mb-3 shadow" 
-                        style="background: white; color: #00a699; border: none;" 
-                        onclick="calcHealth()">
-                    Analyse Now
-                </button>
-
-                <div id="healthRes" class="text-center fw-bold small">
-                    Enter data to see BMI
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-            <div class="bg-white p-4 rounded-5 shadow-sm border border-light" data-aos="fade-up">
+    <div class="row g-5">
+        <div class="col-lg-3">
+            <div class="bg-white p-4 rounded-5 shadow-sm border border-light" data-aos="fade-right">
                 <h6 class="fw-bold mb-3 text-secondary">Why Choose Us?</h6>
                 <div class="small mb-3"><i class="bi bi-patch-check-fill text-success me-2"></i> 100% Genuine Meds</div>
                 <div class="small mb-3"><i class="bi bi-truck text-primary me-2"></i> 2H Delivery</div>
@@ -222,16 +149,12 @@
         </div>
 
         <div class="col-lg-9">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h4 class="fw-bold mb-0" id="gridTitle">Daily Healthcare Needs</h4>
-            </div>
+            <h4 class="fw-bold mb-4" id="gridTitle">Healthcare Essentials</h4>
             <div class="row g-4">
                 {% for product in products %}
                 <div class="col-md-4" data-aos="fade-up" data-aos-delay="{{ loop.index0 * 50 }}">
                     <div class="medicine-card shadow-sm border border-light">
-                        <div class="img-container mb-3">
-                            <img src="{{ product.image_url }}" alt="{{ product.name }}">
-                        </div>
+                        <div class="img-container mb-3"><img src="{{ product.image_url }}" alt="{{ product.name }}"></div>
                         <span class="text-muted small text-uppercase fw-bold" style="font-size: 0.65rem;">{{ product.category.name }}</span>
                         <h6 class="fw-bold mb-2 text-truncate">{{ product.name }}</h6>
                         <div class="d-flex justify-content-between align-items-center mt-3">
@@ -246,43 +169,44 @@
     </div>
 </main>
 
-<!-- Floating SOS -->
-<button class="sos-btn" data-bs-toggle="modal" data-bs-target="#sosModal">
-    <i class="bi bi-exclamation-triangle-fill"></i>
-</button>
-
-<!-- Success Toast -->
-<div id="cart-toast">
-    <i class="bi bi-check-circle-fill me-2 text-success"></i> Medicine Added Successfully!
-</div>
-
-<!-- SOS Modal -->
-<div class="modal fade" id="sosModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 rounded-5 overflow-hidden">
-            <div class="modal-header bg-danger text-white p-4 border-0">
-                <h5 class="fw-bold mb-0"><i class="bi bi-life-preserver me-2"></i> EMERGENCY FIRST AID</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body p-4 bg-light">
-                <div class="list-group list-group-flush rounded-4 overflow-hidden border">
-                    <div class="list-group-item p-3"><h6 class="fw-bold mb-1 text-danger">Heart Attack</h6><small class="text-muted">Keep calm, loosen clothes, call ambulance 108.</small></div>
-                    <div class="list-group-item p-3"><h6 class="fw-bold mb-1 text-danger">Fainting</h6><small class="text-muted">Lay down, raise legs 12 inches, ensure air flow.</small></div>
-                    <div class="list-group-item p-3"><h6 class="fw-bold mb-1 text-danger">Burns</h6><small class="text-muted">Run cool water for 20 mins. No ice or butter.</small></div>
+<!-- MODALS & OVERLAYS -->
+<div class="modal fade" id="healthScanModal" tabindex="-1">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content border-0 rounded-5 shadow-lg overflow-hidden" style="background: #0066ff;">
+            <div class="modal-body p-4 text-white">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold mb-0"><i class="bi bi-speedometer2 me-2"></i>Health Scan</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="d-grid mt-4">
-                    <a href="/track/1" class="btn btn-danger py-3 rounded-pill fw-bold">LOCATE EMERGENCY NEARBY</a>
-                </div>
+                <div class="mb-2"><label class="small fw-bold mb-1 opacity-75">Height (cm)</label><input type="number" id="hgt" class="form-control bg-white bg-opacity-25 border-0 text-white py-2" placeholder="170"></div>
+                <div class="mb-4"><label class="small fw-bold mb-1 opacity-75">Weight (kg)</label><input type="number" id="wgt" class="form-control bg-white bg-opacity-25 border-0 text-white py-2" placeholder="65"></div>
+                <button class="btn btn-white w-100 rounded-pill fw-bold py-2 mb-3 shadow" style="background: white; color: #00a699; border: none;" onclick="calcHealth()">Analyse Now</button>
+                <div id="healthRes" class="text-center fw-bold small">Enter data to see BMI</div>
             </div>
         </div>
     </div>
 </div>
+
+<button class="sos-btn" data-bs-toggle="modal" data-bs-target="#sosModal"><i class="bi bi-exclamation-triangle-fill"></i></button>
+<div id="cart-toast"><i class="bi bi-check-circle-fill me-2 text-success"></i> Added to Cart!</div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 
 <script>
     AOS.init({ duration: 800, once: true });
+
+    function openSearch() {
+        const blur = document.getElementById('searchBlur');
+        blur.style.display = 'block';
+        setTimeout(() => blur.style.opacity = '1', 10);
+    }
+
+    function closeSearch() {
+        const blur = document.getElementById('searchBlur');
+        blur.style.opacity = '0';
+        setTimeout(() => blur.style.display = 'none', 300);
+    }
 
     function toggleTheme() {
         const html = document.documentElement;
@@ -295,55 +219,37 @@
         }
     }
 
-    let currentLang = 'en';
-    function toggleLang() {
-        const texts = {
-            en: { title: "Your Health, Delivered Daily.", sub: "Genuine medicines, digital health scans, and emergency care at your fingertips.", grid: "Daily Healthcare Needs", btn: "EN | தமிழ்" },
-            ta: { title: "உங்கள் ஆரோக்கியம், தினசரி விநியோகம்.", sub: "மருந்துகள், சுகாதார ஸ்கேன்கள் மற்றும் அவசர சிகிச்சை அனைத்தும் உங்கள் கையில்.", grid: "தினசரி சுகாதார தேவைகள்", btn: "தமிழ் | EN" }
-        };
-        currentLang = currentLang === 'en' ? 'ta' : 'en';
-        document.getElementById('heroTitle').innerText = texts[currentLang].title;
-        document.getElementById('heroSub').innerText = texts[currentLang].sub;
-        document.getElementById('gridTitle').innerText = texts[currentLang].grid;
-        document.getElementById('langBtn').innerText = texts[currentLang].btn;
+    function calcHealth() {
+        let h = document.getElementById('hgt').value / 100;
+        let w = document.getElementById('wgt').value;
+        if(h && w) {
+            let bmi = (w / (h * h)).toFixed(1);
+            let water = (w * 0.033).toFixed(1);
+            document.getElementById('healthRes').innerHTML = `<div class="p-2 rounded" style="background:rgba(255,255,255,0.15)">BMI: ${bmi} <br> Water: ${water}L/day</div>`;
+        }
     }
-
-  function calcHealth() {
-    let h = document.getElementById('hgt').value / 100;
-    let w = document.getElementById('wgt').value;
-    
-    if(h && w) {
-        let bmi = (w / (h * h)).toFixed(1);
-        let water = (w * 0.033).toFixed(1);
-        let status = "";
-        let color = "";
-
-        if(bmi < 18.5) { status = "Underweight"; color = "#ffc107"; }
-        else if(bmi < 25) { status = "Healthy"; color = "#ffffff"; }
-        else { status = "Overweight"; color = "#ff4d4d"; }
-
-        document.getElementById('healthRes').innerHTML = `
-            <div class="mt-2 p-2 rounded-3" style="background: rgba(255,255,255,0.15);">
-                <span style="color:${color}">BMI: ${bmi} (${status})</span><br>
-                <small><i class="bi bi-droplet-fill"></i> Water: ${water}L/day</small>
-            </div>
-        `;
-    } else {
-        alert("Please enter both height and weight!");
-    }
-}
 
     function addToCart(pid) {
-        fetch(`/add_to_cart/${pid}`)
-            .then(res => res.json())
-            .then(data => {
-                document.getElementById('cart-count-badge').innerText = data.cart_count;
-                const toast = document.getElementById('cart-toast');
-                toast.style.display = 'block';
-                setTimeout(() => toast.style.display = 'none', 3000);
-            });
+        fetch(`/add_to_cart/${pid}`).then(res => res.json()).then(data => {
+            document.getElementById('cart-count-badge').innerText = data.cart_count;
+            const t = document.getElementById('cart-toast');
+            t.style.display = 'block'; setTimeout(() => t.style.display = 'none', 3000);
+        });
+    }
+
+    // Voice Search
+    const voiceTrigger = document.getElementById('voiceTrigger');
+    if ('webkitSpeechRecognition' in window) {
+        const recognition = new webkitSpeechRecognition();
+        voiceTrigger.onclick = () => {
+            recognition.start();
+            voiceTrigger.style.color = '#ef4444';
+        };
+        recognition.onresult = (e) => {
+            document.getElementById('omniInput').value = e.results[0][0].transcript;
+            document.getElementById('searchForm').submit();
+        };
     }
 </script>
-
 </body>
 </html>
